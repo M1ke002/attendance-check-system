@@ -1,0 +1,4 @@
+/node_modules
+.env
+/http_methods_test
+package-lock.json
