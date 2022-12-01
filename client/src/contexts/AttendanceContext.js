@@ -1,0 +1,127 @@
+import { createContext, useReducer } from "react";
+import attendanceReducer from "../reducers/attendanceReducer";
+import { apiUrl } from "./constants";
+import axios from "axios";
+
+import {
+  ATTENDANCE_LOADED_SUCCESS,
+  ATTENDANCE_LOADED_FAILED,
+  DELETE_ATTENDANCE,
+  UPDATE_ATTENDANCE,
+  CLEAR_ATTENDANCE,
+  CREATE_ATTENDANCE,
+} from "../reducers/constants";
+
+export const attendanceContext = createContext();
+
+function AttendanceContext({ children }) {
+  const [attendanceState, dispatch] = useReducer(attendanceReducer, {
+    attendance: null,
+    isAttendanceLoading: true,
+  });
+
+  const getAttendance = async (courseInfo) => {
+    const { courseId, date } = courseInfo;
+    try {
+      const res = await axios.get(
+        `${apiUrl}/attendance?courseId=${courseId}&date=${date}`
+      );
+      if (res.data.success) {
+        dispatch({
+          type: ATTENDANCE_LOADED_SUCCESS,
+          payload: {
+            attendance: res.data.attendance,
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      console.log("attendance not found");
+      dispatch({
+        type: ATTENDANCE_LOADED_FAILED,
+      });
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const deleteAttendance = async (attendanceId) => {
+    try {
+      const res = await axios.delete(`${apiUrl}/attendance/${attendanceId}`);
+      if (res.data.success) {
+        dispatch({
+          type: DELETE_ATTENDANCE,
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const createAttendance = async (attendanceInfo) => {
+    try {
+      const res = await axios.post(`${apiUrl}/attendance`, attendanceInfo);
+      if (res.data.success) {
+        dispatch({
+          type: CREATE_ATTENDANCE,
+          payload: {
+            attendance: res.data.attendance,
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const updateAttendance = async (newAttendance) => {
+    try {
+      const res = await axios.put(
+        `${apiUrl}/attendance/${newAttendance._id}`,
+        newAttendance
+      );
+      if (res.data.success) {
+        dispatch({
+          type: UPDATE_ATTENDANCE,
+          payload: {
+            attendance: res.data.attendance,
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const clearAttendance = () => {
+    dispatch({
+      type: CLEAR_ATTENDANCE,
+    });
+  };
+
+  // const updateAttendanceOnStudentUnenroll = () => {
+
+  // }
+
+  const attendanceData = {
+    attendanceState,
+    getAttendance,
+    deleteAttendance,
+    updateAttendance,
+    clearAttendance,
+    createAttendance,
+  };
+  return (
+    <attendanceContext.Provider value={attendanceData}>
+      {children}
+    </attendanceContext.Provider>
+  );
+}
+
+export default AttendanceContext;
