@@ -58,6 +58,7 @@ function AttendanceTable() {
   console.log("rerender");
   const {
     attendanceState: { attendance },
+    getAttendance,
     createAttendance,
     updateAttendance,
   } = useContext(attendanceContext);
@@ -69,7 +70,12 @@ function AttendanceTable() {
 
   const { course, date } = selectedCourseInfo;
 
-  const { getSelectedStudent } = useContext(studentContext);
+  const {
+    getSelectedStudent,
+    studentState: { selectedStudent },
+    removeStudentFromCourse,
+    deselectStudent,
+  } = useContext(studentContext);
 
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [pageSize, setPageSize] = useState(10);
@@ -77,7 +83,7 @@ function AttendanceTable() {
   const [selectionModel, setSelectionModel] = useState([]);
 
   useEffect(() => {
-    if (attendance) {
+    if (attendance && course && date) {
       const attendanceList = attendance.records.map((record, index) => {
         return {
           id: index + 1,
@@ -129,7 +135,20 @@ function AttendanceTable() {
     setShowConfirmDeleteModal(true);
   }, []);
 
-  // console.log("rerender");
+  const handleRemoveStudent = async () => {
+    const { student } = selectedStudent;
+    const res = await removeStudentFromCourse({
+      studentId: student._id,
+      courseId: course._id,
+    });
+    console.log(res);
+    await getAllCourses();
+    await getAttendance({
+      courseId: course._id,
+      date,
+    });
+    setShowConfirmDeleteModal(false);
+  };
 
   const columns = useMemo(
     () => [
@@ -323,7 +342,30 @@ function AttendanceTable() {
         <GlobalStyles styles={{ p: { marginTop: "auto" } }} />
       </div>
       <ConfirmDeleteModal
-        data={{ showConfirmDeleteModal, setShowConfirmDeleteModal }}
+        showConfirmDeleteModal={showConfirmDeleteModal}
+        onHide={() => {
+          setShowConfirmDeleteModal(false);
+          deselectStudent();
+        }}
+        onDelete={handleRemoveStudent}
+        onCancel={() => {
+          setShowConfirmDeleteModal(false);
+          deselectStudent();
+        }}
+        message={{
+          body: selectedStudent ? (
+            <>
+              Remove student:{" "}
+              <strong>
+                {selectedStudent.student.studentId}{" "}
+                {selectedStudent.student.name}{" "}
+              </strong>
+              from this course?
+            </>
+          ) : (
+            "Removing..."
+          ),
+        }}
       />
     </>
   );

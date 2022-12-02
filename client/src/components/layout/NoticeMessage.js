@@ -1,13 +1,19 @@
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import ClearIcon from "@mui/icons-material/Clear";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
+import { useState } from "react";
 import { courseContext } from "../../contexts/CourseContext";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { getDayOfWeek } from "../../utils/utilsFunction";
 import { useContext } from "react";
+import ConfirmDeleteModal from "../attendance/ConfirmDeleteModal";
 
-function NoticeMessage({ setIsFetching }) {
+function NoticeMessage() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const {
     courseState: {
       selectedCourseInfo: { course, date },
@@ -24,10 +30,10 @@ function NoticeMessage({ setIsFetching }) {
   const handleDeleteAttendance = async () => {
     //remove selected course info and attendance if exists
     if (attendance) {
-      setIsFetching(true);
+      setIsLoading(true);
       const res = await deleteAttendance(attendance._id);
       await getAllCourses();
-      setIsFetching(false);
+      setIsLoading(false);
       console.log(res);
     }
     clearSelectedCourseInfo();
@@ -60,12 +66,38 @@ function NoticeMessage({ setIsFetching }) {
         <Button
           variant="link"
           style={{ textDecoration: "none", color: "rgb(204 87 98)" }}
-          onClick={handleDeleteAttendance}
+          onClick={() => setShowConfirmDeleteModal(true)}
         >
           <span className="me-1">Click to cancel this class</span>
           <ClearIcon fontSize="small" />
         </Button>
       </Alert>
+      <ConfirmDeleteModal
+        showConfirmDeleteModal={showConfirmDeleteModal}
+        onHide={() => {
+          setShowConfirmDeleteModal(false);
+        }}
+        message={{
+          body: isLoading ? "Deleting..." : "Delete this attendance?",
+          footer: "Delete",
+        }}
+        onDelete={async () => {
+          setShowConfirmDeleteModal(false);
+          await handleDeleteAttendance();
+        }}
+        onCancel={() => setShowConfirmDeleteModal(false)}
+      />
+
+      <Backdrop
+        sx={{
+          color: "#fff",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: "rgb(0 0 0 / 30%);",
+        }}
+        open={isLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 }
