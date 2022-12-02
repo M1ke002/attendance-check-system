@@ -6,15 +6,13 @@ import ClearIcon from "@mui/icons-material/Clear";
 import excelIcon from "../../assets/excel.svg";
 import uploadImg from "../../assets/cloud-upload-regular-240.png";
 
-import { useRef, useState, useContext } from "react";
-import { studentContext } from "../../contexts/StudentContext";
+import { useRef, useState } from "react";
 
-function UploadFileModal() {
+function UploadFileModal({ data }) {
   const wrapperRef = useRef(null);
   const [file, setFile] = useState(null);
 
-  const { showUploadFileModal, setShowUploadFileModal } =
-    useContext(studentContext);
+  const { showUploadFileModal, setShowUploadFileModal } = data;
 
   const handleSubmit = (e) => {
     e.preventDefault();

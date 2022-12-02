@@ -33,6 +33,8 @@ function NoticeMessage({ setIsFetching }) {
     clearSelectedCourseInfo();
   };
 
+  if (!course || !date) return null;
+
   return (
     <>
       <style type="text/css">

@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useReducer } from "react";
+import { useEffect, createContext, useReducer } from "react";
 import { apiUrl } from "./constants";
 import studentReducer from "../reducers/studentReducer";
 import axios from "axios";
@@ -20,10 +20,6 @@ function StudentContext({ children }) {
   });
 
   // console.log(studentState.students);
-
-  const [showEnrollStudentModal, setShowEnrollStudentModal] = useState(false);
-  const [showUploadFileModal, setShowUploadFileModal] = useState(false);
-  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
 
   useEffect(() => {
     const getAllStudents = async () => {
@@ -110,12 +106,6 @@ function StudentContext({ children }) {
   };
 
   const studentData = {
-    showEnrollStudentModal,
-    setShowEnrollStudentModal,
-    showUploadFileModal,
-    setShowUploadFileModal,
-    showConfirmDeleteModal,
-    setShowConfirmDeleteModal,
     getSelectedStudent,
     deselectStudent,
     enrollStudentForCourse,

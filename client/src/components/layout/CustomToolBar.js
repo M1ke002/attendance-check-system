@@ -7,16 +7,15 @@ import Spinner from "react-bootstrap/Spinner";
 
 import { useState } from "react";
 
+import UploadFileModal from "../attendance/UploadFileModal";
+import EnrollStudentModal from "../attendance/EnrollStudentModal";
+
 function CustomToolBar(props) {
+  const [showEnrollStudentModal, setShowEnrollStudentModal] = useState(false);
+  const [showUploadFileModal, setShowUploadFileModal] = useState(false);
+
   const [isSavingData, setIsSavingData] = useState(false);
-  const {
-    setShowEnrollStudentModal,
-    setShowUploadFileModal,
-    selectionModel,
-    rows,
-    attendanceData,
-    getAllCourses,
-  } = props;
+  const { selectionModel, rows, attendanceData, getAllCourses } = props;
 
   const { attendance, createAttendance, updateAttendance, course, date } =
     attendanceData;
@@ -103,6 +102,10 @@ function CustomToolBar(props) {
           <GridToolbarQuickFilter />
         </div>
       </GridToolbarContainer>
+      <UploadFileModal data={{ setShowUploadFileModal, showUploadFileModal }} />
+      <EnrollStudentModal
+        data={{ setShowEnrollStudentModal, showEnrollStudentModal }}
+      />
     </>
   );
 }

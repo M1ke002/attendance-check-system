@@ -14,7 +14,8 @@ import { useState, useContext } from "react";
 
 // import { toast } from 'react-toastify';
 
-function EnrollStudentModal() {
+function EnrollStudentModal({ data }) {
+  const { showEnrollStudentModal, setShowEnrollStudentModal } = data;
   const [isFinding, setIsFinding] = useState(false);
   const [key, setKey] = useState("add students");
   const [foundStudents, setFoundStudents] = useState([]);
@@ -24,12 +25,7 @@ function EnrollStudentModal() {
     findStudentsField: "",
     selectedStudentField: "",
   });
-  const {
-    showEnrollStudentModal,
-    setShowEnrollStudentModal,
-    enrollStudentForCourse,
-    findStudents,
-  } = useContext(studentContext);
+  const { enrollStudentForCourse, findStudents } = useContext(studentContext);
 
   const {
     courseState: {

@@ -7,6 +7,7 @@ import CustomToolBar from "../layout/CustomToolBar";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { courseContext } from "../../contexts/CourseContext";
 import { studentContext } from "../../contexts/StudentContext";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 import NumbersIcon from "@mui/icons-material/Numbers";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -68,13 +69,9 @@ function AttendanceTable() {
 
   const { course, date } = selectedCourseInfo;
 
-  const {
-    getSelectedStudent,
-    setShowEnrollStudentModal,
-    setShowUploadFileModal,
-    setShowConfirmDeleteModal,
-  } = useContext(studentContext);
+  const { getSelectedStudent } = useContext(studentContext);
 
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [rows, setRows] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
@@ -270,60 +267,65 @@ function AttendanceTable() {
   );
 
   return (
-    <div style={{ height: rows.length === 0 ? 350 : 500, width: "100%" }}>
-      <StripedDataGrid
-        rows={rows}
-        columns={columns}
-        checkboxSelection
-        getRowClassName={(params) =>
-          params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
-        }
-        disableColumnMenu={true}
-        pageSize={pageSize}
-        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-        rowsPerPageOptions={[10, 50, 100]}
-        pagination
-        disableSelectionOnClick
-        sx={{ border: 0 }}
-        localeText={{
-          noRowsLabel: "No students found",
-          footerRowSelected: (count) =>
-            count !== 1
-              ? `${count.toLocaleString()} students selected (tick to check attendance)`
-              : `${count.toLocaleString()} student selected (tick to check attendance)`,
-        }}
-        components={{ Toolbar: CustomToolBar }}
-        componentsProps={{
-          toolbar: {
-            setShowEnrollStudentModal,
-            setShowUploadFileModal,
-            selectionModel,
-            rows,
-            attendanceData: {
-              attendance,
-              createAttendance,
-              updateAttendance,
-              course,
-              date,
+    <>
+      <h4 className="text-center">Enrolled students</h4>
+      <hr style={{ opacity: 0.15 }} />
+      <div style={{ height: rows.length === 0 ? 350 : 500, width: "100%" }}>
+        <StripedDataGrid
+          rows={rows}
+          columns={columns}
+          checkboxSelection
+          getRowClassName={(params) =>
+            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+          }
+          disableColumnMenu={true}
+          pageSize={pageSize}
+          onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+          rowsPerPageOptions={[10, 50, 100]}
+          pagination
+          disableSelectionOnClick
+          sx={{ border: 0 }}
+          localeText={{
+            noRowsLabel: "No students found",
+            footerRowSelected: (count) =>
+              count !== 1
+                ? `${count.toLocaleString()} students selected (tick to check attendance)`
+                : `${count.toLocaleString()} student selected (tick to check attendance)`,
+          }}
+          components={{ Toolbar: CustomToolBar }}
+          componentsProps={{
+            toolbar: {
+              selectionModel,
+              rows,
+              attendanceData: {
+                attendance,
+                createAttendance,
+                updateAttendance,
+                course,
+                date,
+              },
+              getAllCourses,
             },
-            getAllCourses,
-          },
-        }}
-        selectionModel={selectionModel}
-        onSelectionModelChange={(newSelectionModel) =>
-          setSelectionModel(newSelectionModel)
-        }
-        initialState={{
-          columns: {
-            columnVisibilityModel: {
-              _id: false,
+          }}
+          selectionModel={selectionModel}
+          onSelectionModelChange={(newSelectionModel) =>
+            setSelectionModel(newSelectionModel)
+          }
+          initialState={{
+            columns: {
+              columnVisibilityModel: {
+                _id: false,
+              },
             },
-          },
-        }}
+          }}
+        />
+        {/* custom styles */}
+        <GlobalStyles styles={{ p: { marginTop: "auto" } }} />
+      </div>
+      <ConfirmDeleteModal
+        data={{ showConfirmDeleteModal, setShowConfirmDeleteModal }}
       />
-      {/* custom styles */}
-      <GlobalStyles styles={{ p: { marginTop: "auto" } }} />
-    </div>
+    </>
   );
 }
 

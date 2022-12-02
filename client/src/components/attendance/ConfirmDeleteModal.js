@@ -7,10 +7,9 @@ import { studentContext } from "../../contexts/StudentContext";
 import { courseContext } from "../../contexts/CourseContext";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 
-function ConfirmDeleteModal() {
+function ConfirmDeleteModal({ data }) {
+  const { showConfirmDeleteModal, setShowConfirmDeleteModal } = data;
   const {
-    showConfirmDeleteModal,
-    setShowConfirmDeleteModal,
     studentState: { selectedStudent },
     removeStudentFromCourse,
     deselectStudent,
