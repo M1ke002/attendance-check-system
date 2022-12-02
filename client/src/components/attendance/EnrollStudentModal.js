@@ -6,7 +6,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import Spinner from "react-bootstrap/Spinner";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
+import AlertMessage from "../layout/AlertMessage";
 import { studentContext } from "../../contexts/StudentContext";
 import { courseContext } from "../../contexts/CourseContext";
 import { attendanceContext } from "../../contexts/AttendanceContext";
@@ -17,8 +20,14 @@ import { useState, useContext } from "react";
 function EnrollStudentModal({ data }) {
   const { showEnrollStudentModal, setShowEnrollStudentModal } = data;
   const [isFinding, setIsFinding] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [key, setKey] = useState("add students");
   const [foundStudents, setFoundStudents] = useState([]);
+  const [alert, setAlert] = useState({
+    message: "",
+    show: false,
+    type: "",
+  });
   const [studentInputField, setStudentInputField] = useState({
     studentId: "",
     name: "",
@@ -68,12 +77,19 @@ function EnrollStudentModal({ data }) {
       selectedStudentField: "",
     });
     setFoundStudents([]);
+    setAlert({ ...alert, show: false });
   };
 
   const handleEnrollStudent = async (e) => {
     e.preventDefault();
     if (!course) {
       console.log("Must go to a course first!");
+      setAlert({
+        ...alert,
+        message: "Must go to a course first!",
+        show: true,
+        type: "light-danger",
+      });
       return;
     }
     let enrollInfo = null;
@@ -83,6 +99,12 @@ function EnrollStudentModal({ data }) {
         selectedStudentField === ""
       ) {
         console.log("please select a student");
+        setAlert({
+          ...alert,
+          message: "please select a student",
+          show: true,
+          type: "light-danger",
+        });
         return;
       }
       // console.log(selectedStudentField, course._id);
@@ -93,6 +115,12 @@ function EnrollStudentModal({ data }) {
     } else if (key === "add students") {
       if (studentId.trim() === "") {
         console.log("Can't leave empty field");
+        setAlert({
+          ...alert,
+          message: "Can't leave empty field",
+          show: true,
+          type: "light-danger",
+        });
         return;
       }
       // console.log(studentId, name, course._id);
@@ -105,6 +133,7 @@ function EnrollStudentModal({ data }) {
     if (!enrollInfo) {
       console.log("sth wrong when enroll student");
     }
+    setIsAdding(true);
     const res = await enrollStudentForCourse(enrollInfo);
     console.log(res);
     if (res.success) {
@@ -113,103 +142,140 @@ function EnrollStudentModal({ data }) {
         courseId: course._id,
         date,
       });
+      setAlert({
+        ...alert,
+        message: `${res.message}: ${res.student.name}`,
+        show: true,
+        type: "light-success",
+      });
+    } else {
+      setAlert({
+        ...alert,
+        message: res.message ? res.message : res,
+        show: true,
+        type: "light-danger",
+      });
     }
+    setIsAdding(false);
   };
 
   return (
-    <Modal show={showEnrollStudentModal} centered onHide={onCloseModal}>
-      <Modal.Header closeButton>
-        <Modal.Title>Enroll student(s)</Modal.Title>
-      </Modal.Header>
-      <Form onSubmit={handleEnrollStudent}>
-        <Modal.Body>
-          <Tabs activeKey={key} onSelect={(k) => setKey(k)}>
-            <Tab eventKey="add students" title="Add students">
-              <Form.Group>
-                <Form.Label className="mt-2">Student ID*</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="ex: BI11-001"
-                  name="studentId"
-                  className="mb-1"
-                  value={studentId}
-                  onChange={handleFormInput}
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label className="mt-2">Student Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="optional if student already exists in system"
-                  name="name"
-                  className="mb-1"
-                  value={name}
-                  onChange={handleFormInput}
-                />
-              </Form.Group>
-            </Tab>
-            <Tab eventKey="find students" title="Find students">
-              <Form.Group>
-                <Form.Label className="mt-2">Find existing students</Form.Label>
-                <InputGroup className="mb-3">
+    <>
+      <Modal show={showEnrollStudentModal} centered onHide={onCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Enroll student(s)</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleEnrollStudent}>
+          <Modal.Body>
+            <Tabs activeKey={key} onSelect={(k) => setKey(k)}>
+              <Tab eventKey="add students" title="Add students">
+                <Form.Group>
+                  <Form.Label className="mt-2">Student ID*</Form.Label>
                   <Form.Control
                     type="text"
-                    name="findStudentsField"
-                    placeholder="Search by ID or name"
-                    value={findStudentsField}
+                    placeholder="ex: BI11-001"
+                    name="studentId"
+                    className="mb-1"
+                    value={studentId}
                     onChange={handleFormInput}
                   />
-                  <Button
-                    variant="primary"
-                    style={{ height: 38 }}
-                    className="d-flex align-items-center"
-                    onClick={() => {
-                      getSearchResults();
-                      setStudentInputField({
-                        ...studentInputField,
-                        selectedStudentField: "",
-                      });
-                    }}
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label className="mt-2">Student Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="optional if student already exists in system"
+                    name="name"
+                    className="mb-1"
+                    value={name}
+                    onChange={handleFormInput}
+                  />
+                </Form.Group>
+              </Tab>
+              <Tab eventKey="find students" title="Find students">
+                <Form.Group>
+                  <Form.Label className="mt-2">
+                    Find existing students
+                  </Form.Label>
+                  <InputGroup className="mb-3">
+                    <Form.Control
+                      type="text"
+                      name="findStudentsField"
+                      placeholder="Search by ID or name"
+                      value={findStudentsField}
+                      onChange={handleFormInput}
+                    />
+                    <Button
+                      variant="primary"
+                      style={{ height: 38 }}
+                      className="d-flex align-items-center"
+                      onClick={() => {
+                        getSearchResults();
+                        setStudentInputField({
+                          ...studentInputField,
+                          selectedStudentField: "",
+                        });
+                      }}
+                    >
+                      {isFinding ? (
+                        <Spinner animation="border" size="sm" variant="light" />
+                      ) : (
+                        <SearchIcon />
+                      )}
+                    </Button>
+                  </InputGroup>
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>
+                    Found: {foundStudents.length > 0 ? foundStudents.length : 0}{" "}
+                    student(s)
+                  </Form.Label>
+                  <Form.Select
+                    name="selectedStudentField"
+                    onChange={handleFormInput}
                   >
-                    {isFinding ? (
-                      <Spinner animation="border" size="sm" variant="light" />
-                    ) : (
-                      <SearchIcon />
-                    )}
-                  </Button>
-                </InputGroup>
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>
-                  Found: {foundStudents.length > 0 ? foundStudents.length : 0}{" "}
-                  student(s)
-                </Form.Label>
-                <Form.Select
-                  name="selectedStudentField"
-                  onChange={handleFormInput}
-                >
-                  <option value="not selected">Select a student</option>
-                  {foundStudents.map((student) => (
-                    <option
-                      key={student._id}
-                      value={student.studentId}
-                    >{`${student.studentId} ${student.name}`}</option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Tab>
-          </Tabs>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="info" type="submit">
-            Add
-          </Button>
-          <Button variant="danger" onClick={onCloseModal}>
-            Cancel
-          </Button>
-        </Modal.Footer>
-      </Form>
-    </Modal>
+                    <option value="not selected">Select a student</option>
+                    {foundStudents.map((student) => (
+                      <option
+                        key={student._id}
+                        value={student.studentId}
+                      >{`${student.studentId} ${student.name}`}</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Tab>
+            </Tabs>
+            {alert.show && (
+              <AlertMessage
+                data={{
+                  alert,
+                  setAlert,
+                  otherStyles: { margin: "11px 0 -4px" },
+                }}
+              />
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="info" type="submit" disabled={isAdding}>
+              {isAdding ? "Adding..." : "Add"}
+            </Button>
+            <Button variant="danger" onClick={onCloseModal}>
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+      <Backdrop
+        sx={{
+          color: "#fff",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: "rgb(0 0 0 / 30%);",
+        }}
+        open={isAdding}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </>
   );
 }
 

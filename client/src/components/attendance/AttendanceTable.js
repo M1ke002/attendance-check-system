@@ -3,6 +3,8 @@ import { alpha, styled } from "@mui/material/styles";
 import { DataGrid, GridActionsCellItem, gridClasses } from "@mui/x-data-grid";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import Badge from "react-bootstrap/Badge";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 import CustomToolBar from "../layout/CustomToolBar";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { courseContext } from "../../contexts/CourseContext";
@@ -81,6 +83,7 @@ function AttendanceTable() {
   const [pageSize, setPageSize] = useState(10);
   const [rows, setRows] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (attendance && course && date) {
@@ -137,6 +140,8 @@ function AttendanceTable() {
 
   const handleRemoveStudent = async () => {
     const { student } = selectedStudent;
+    setIsDeleting(true);
+    setShowConfirmDeleteModal(false);
     const res = await removeStudentFromCourse({
       studentId: student._id,
       courseId: course._id,
@@ -147,7 +152,7 @@ function AttendanceTable() {
       courseId: course._id,
       date,
     });
-    setShowConfirmDeleteModal(false);
+    setIsDeleting(false);
   };
 
   const columns = useMemo(
@@ -367,6 +372,16 @@ function AttendanceTable() {
           ),
         }}
       />
+      <Backdrop
+        sx={{
+          color: "#fff",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: "rgb(0 0 0 / 30%);",
+        }}
+        open={isDeleting}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 }
