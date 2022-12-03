@@ -9,6 +9,7 @@ import CustomToolBar from "../layout/CustomToolBar";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { courseContext } from "../../contexts/CourseContext";
 import { studentContext } from "../../contexts/StudentContext";
+import { toast } from "react-toastify";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 import NumbersIcon from "@mui/icons-material/Numbers";
@@ -141,17 +142,28 @@ function AttendanceTable() {
   const handleRemoveStudent = async () => {
     const { student } = selectedStudent;
     setIsDeleting(true);
-    setShowConfirmDeleteModal(false);
     const res = await removeStudentFromCourse({
       studentId: student._id,
       courseId: course._id,
     });
     console.log(res);
-    await getAllCourses();
-    await getAttendance({
-      courseId: course._id,
-      date,
-    });
+    if (res.success) {
+      await getAllCourses();
+      await getAttendance({
+        courseId: course._id,
+        date,
+      });
+      toast.success(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    } else {
+      toast.error(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    }
+    setShowConfirmDeleteModal(false);
     setIsDeleting(false);
   };
 

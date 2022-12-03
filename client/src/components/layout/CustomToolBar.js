@@ -4,6 +4,7 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import { toast } from "react-toastify";
 
 import { useState } from "react";
 
@@ -23,6 +24,10 @@ function CustomToolBar(props) {
   const saveData = async () => {
     if (!course || !date) {
       console.log("missing course date, cant save yet");
+      toast.error("Go to a course first!", {
+        theme: "colored",
+        autoClose: 2000,
+      });
       return;
     }
     const records = rows.map((row) => {
@@ -33,6 +38,7 @@ function CustomToolBar(props) {
       };
     });
     //check if save existing attendance or create new one
+    let result = null;
     setIsSavingData(true);
     if (attendance) {
       const attendanceData = {
@@ -41,6 +47,7 @@ function CustomToolBar(props) {
       };
       const res = await updateAttendance(attendanceData);
       console.log(res);
+      result = res;
     } else {
       const attendanceData = {
         records,
@@ -49,8 +56,20 @@ function CustomToolBar(props) {
       };
       const res = await createAttendance(attendanceData);
       console.log(res);
+      result = res;
     }
     await getAllCourses();
+    if (result.success) {
+      toast.success(result.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    } else {
+      toast.error(result.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    }
     setIsSavingData(false);
   };
 

@@ -1,6 +1,7 @@
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Select from "react-select/";
+import { toast } from "react-toastify";
 
 import { useEffect, useContext, useState } from "react";
 import { courseContext } from "../../contexts/CourseContext";
@@ -51,12 +52,16 @@ function AttendanceSearch() {
     e.preventDefault();
     //validation
     if (!courseField || !dateField) {
-      console.log("Please enter course and date");
+      console.log("Missing course or date");
+      toast.error("Missing course or date!", {
+        theme: "colored",
+        autoClose: 2000,
+      });
       return;
     }
 
     setIsLoadingAttendance(true);
-    const res = await getAttendance({
+    await getAttendance({
       courseId: courseField,
       date: dateField,
     });

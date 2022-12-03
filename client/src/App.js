@@ -10,37 +10,43 @@ import CourseContextProvider from "./contexts/CourseContext";
 import StudentContextProvider from "./contexts/StudentContext";
 import ProtectedRoutes from "./components/routes/ProtectedRoutes";
 
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+
 import Test from "./utils/test";
 
 function App() {
   return (
-    <CourseContextProvider>
-      <AttendanceContextProvider>
-        <StudentContextProvider>
-          <AuthContextProvider>
-            <Router>
-              <Routes>
-                <Route exact path="/test" element={<Test />} />
-                <Route exact path="/" element={<Landing />} />
-                <Route
-                  exact
-                  path="/login"
-                  element={<Auth routeType="login" />}
-                />
-                <Route
-                  exact
-                  path="/register"
-                  element={<Auth routeType="register" />}
-                />
-                <Route element={<ProtectedRoutes />}>
-                  <Route exact path="/attendance" element={<Attendance />} />
-                </Route>
-              </Routes>
-            </Router>
-          </AuthContextProvider>
-        </StudentContextProvider>
-      </AttendanceContextProvider>
-    </CourseContextProvider>
+    <>
+      <CourseContextProvider>
+        <AttendanceContextProvider>
+          <StudentContextProvider>
+            <AuthContextProvider>
+              <Router>
+                <Routes>
+                  <Route exact path="/test" element={<Test />} />
+                  <Route exact path="/" element={<Landing />} />
+                  <Route
+                    exact
+                    path="/login"
+                    element={<Auth routeType="login" />}
+                  />
+                  <Route
+                    exact
+                    path="/register"
+                    element={<Auth routeType="register" />}
+                  />
+                  <Route element={<ProtectedRoutes />}>
+                    <Route exact path="/attendance" element={<Attendance />} />
+                  </Route>
+                </Routes>
+              </Router>
+            </AuthContextProvider>
+          </StudentContextProvider>
+        </AttendanceContextProvider>
+      </CourseContextProvider>
+      <ToastContainer />
+    </>
   );
 }
 

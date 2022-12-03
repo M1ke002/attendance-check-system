@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import ClearIcon from "@mui/icons-material/Clear";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import { toast } from "react-toastify";
 
 import { useState } from "react";
 import { courseContext } from "../../contexts/CourseContext";
@@ -29,14 +30,26 @@ function NoticeMessage() {
 
   const handleDeleteAttendance = async () => {
     //remove selected course info and attendance if exists
+    let message = null;
     if (attendance) {
       setIsLoading(true);
       const res = await deleteAttendance(attendance._id);
       await getAllCourses();
       setIsLoading(false);
       console.log(res);
+      message = res.message;
+      if (!res.success) {
+        toast.error(res.message, {
+          theme: "colored",
+          autoClose: 2000,
+        });
+      }
     }
     clearSelectedCourseInfo();
+    toast.success(message ? message : "attendance removed!", {
+      theme: "colored",
+      autoClose: 2000,
+    });
   };
 
   if (!course || !date) return null;
