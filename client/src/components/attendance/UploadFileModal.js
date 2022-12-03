@@ -1,21 +1,72 @@
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import InputGroup from "react-bootstrap/InputGroup";
 import ClearIcon from "@mui/icons-material/Clear";
 
 import excelIcon from "../../assets/excel.svg";
 import uploadImg from "../../assets/cloud-upload-regular-240.png";
 
 import { useRef, useState } from "react";
+import readXlsxFile from "read-excel-file";
 
 function UploadFileModal({ data }) {
-  const wrapperRef = useRef(null);
-  const [file, setFile] = useState(null);
-
   const { showUploadFileModal, setShowUploadFileModal } = data;
 
-  const handleSubmit = (e) => {
+  const wrapperRef = useRef(null);
+  const [file, setFile] = useState(null);
+  const [inputField, setInputField] = useState({
+    studentIdField: "",
+    studentNameField: "",
+  });
+  const { studentIdField, studentNameField } = inputField;
+
+  const getDataFromFile = (rows) => {
+    //check if file contains a row called 'student ID' and 'full name'
+    let studentIdIndex = null;
+    let nameIndex = null;
+    let rowIndex = null;
+    rows.forEach((row, index) => {
+      if (row.includes(studentIdField) && row.includes(studentNameField)) {
+        studentIdIndex = row.indexOf(studentIdField);
+        nameIndex = row.indexOf(studentNameField);
+        rowIndex = index;
+      }
+    });
+    if (!rowIndex) return null;
+    console.log(rowIndex);
+    const data = [];
+    for (let i = rowIndex + 1; i < rows.length; i++) {
+      const row = rows[i];
+      //if element at required indexes is null -> continue
+      if (!row[studentIdIndex] || !row[nameIndex]) continue;
+      data.push({
+        studentId: row[studentIdIndex],
+        name: row[nameIndex],
+      });
+    }
+    return data;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (studentIdField.trim() === "" || studentNameField.trim() === "") {
+      console.log("Missing column names");
+      return;
+    }
+    const rows = await readXlsxFile(file);
+    console.log(rows);
+    const extractedData = getDataFromFile(rows);
+    console.log(extractedData);
+  };
+
+  const onCloseModal = () => {
+    setShowUploadFileModal(false);
+    setInputField({
+      studentIdField: "",
+      studentNameField: "",
+    });
+    setFile(null);
   };
 
   const handleAddFile = (e) => {
@@ -29,11 +80,7 @@ function UploadFileModal({ data }) {
   };
 
   return (
-    <Modal
-      show={showUploadFileModal}
-      centered
-      onHide={() => setShowUploadFileModal(false)}
-    >
+    <Modal show={showUploadFileModal} centered onHide={onCloseModal}>
       <Modal.Header closeButton>
         <Modal.Title>Upload excel file</Modal.Title>
       </Modal.Header>
@@ -59,7 +106,7 @@ function UploadFileModal({ data }) {
           </Form.Group>
           {file && (
             <>
-              <Form.Group className="my-2 mt-3">
+              <Form.Group className="my-2">
                 <Form.Text>File uploaded</Form.Text>
               </Form.Group>
               <Form.Group className="drop-file-item">
@@ -78,19 +125,43 @@ function UploadFileModal({ data }) {
             </>
           )}
           <Form.Group>
-            <Form.Label className="mt-2">
-              *Excel file must contain an ID and a name column
+            <Form.Label className="mt-3">
+              <Form.Text style={{ fontSize: "1rem" }}>
+                Enter column names of student ID and student name in file
+              </Form.Text>
             </Form.Label>
+            <InputGroup className="mb-3">
+              <InputGroup.Text>Column names</InputGroup.Text>
+              <Form.Control
+                placeholder="Student ID"
+                required
+                value={studentIdField}
+                onChange={(e) =>
+                  setInputField({
+                    ...inputField,
+                    studentIdField: e.target.value,
+                  })
+                }
+              />
+              <Form.Control
+                placeholder="Full name"
+                required
+                value={studentNameField}
+                onChange={(e) =>
+                  setInputField({
+                    ...inputField,
+                    studentNameField: e.target.value,
+                  })
+                }
+              />
+            </InputGroup>
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="info" type="submit">
             Submit
           </Button>
-          <Button
-            variant="danger"
-            onClick={() => setShowUploadFileModal(false)}
-          >
+          <Button variant="danger" onClick={onCloseModal}>
             Cancel
           </Button>
         </Modal.Footer>

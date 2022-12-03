@@ -138,7 +138,7 @@ function AttendanceTable() {
       //empty rows
       if (rows.length > 0) setRows([]);
     }
-  }, [attendance, selectedCourseInfo]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [attendance, course, date]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const deleteStudent = useCallback((id) => {
     setRows((prevRows) => {
@@ -148,7 +148,7 @@ function AttendanceTable() {
       return prevRows;
     });
     setShowConfirmDeleteModal(true);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRemoveStudent = async () => {
     const { student } = selectedStudent;
@@ -160,12 +160,10 @@ function AttendanceTable() {
     console.log(res);
     if (res.success) {
       await getAllCourses();
-      // console.log("new courses now");
       await getAttendance({
         courseId: course._id,
         date,
       });
-      // console.log("new attendances now");
       toast.success(res.message, {
         theme: "colored",
         autoClose: 2000,

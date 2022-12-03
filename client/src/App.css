@@ -53,7 +53,7 @@
 /* drop file */
 .drop-file-input {
   position: relative;
-  height: 200px;
+  height: 180px;
   border: 2px dashed var(--file-border-color);
   border-radius: 20px;
   display: flex;
@@ -96,9 +96,8 @@
 .drop-file-item {
   position: relative;
   display: flex;
-  margin-bottom: 10px;
   background-color: var(--file-bg-color);
-  padding: 10px;
+  padding: 6px 10px;
   border-radius: 10px;
 }
 
