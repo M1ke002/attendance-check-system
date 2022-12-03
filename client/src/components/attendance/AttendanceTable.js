@@ -57,6 +57,17 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
   },
 }));
 
+const getTotalAttendanceForStudent = (studentId, course) => {
+  let count = 0;
+  course.attendances.forEach((attendance) => {
+    const isPresent = attendance.records.find(
+      (record) => record.student === studentId
+    )?.present;
+    if (isPresent) count++;
+  });
+  return `${count}/${course.attendances.length}`;
+};
+
 function AttendanceTable() {
   console.log("rerender");
   const {
@@ -97,7 +108,7 @@ function AttendanceTable() {
           name: record.student.name,
           course: course.name,
           date: attendance.date,
-          attendance: "5/6",
+          attendance: getTotalAttendanceForStudent(record.student._id, course),
         };
       });
       setRows(attendanceList);
@@ -118,7 +129,7 @@ function AttendanceTable() {
           name: student.name,
           course: course.name,
           date,
-          attendance: "5/6",
+          attendance: getTotalAttendanceForStudent(student._id, course),
         };
       });
       setRows(attendanceList);
@@ -149,10 +160,12 @@ function AttendanceTable() {
     console.log(res);
     if (res.success) {
       await getAllCourses();
+      // console.log("new courses now");
       await getAttendance({
         courseId: course._id,
         date,
       });
+      // console.log("new attendances now");
       toast.success(res.message, {
         theme: "colored",
         autoClose: 2000,

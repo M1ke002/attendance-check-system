@@ -12,10 +12,10 @@ const router = express.Router();
 //@accessability private
 router.get("/", verifyToken, async (req, res) => {
   try {
-    //populate the course with the students
-    const courses = await Course.find({ user: req.userId }).populate(
-      "students"
-    );
+    //populate the course with the students and the attendance records
+    const courses = await Course.find({ user: req.userId })
+      .populate("students")
+      .populate("attendances", "records");
     if (courses.length === 0)
       return res
         .status(400)
@@ -35,12 +35,10 @@ router.post("/", verifyToken, async (req, res) => {
 
   //validation
   if (!name || !courseCode || !year)
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Missing name/course code/course year",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Missing name/course code/course year",
+    });
   try {
     //check if there is already a course with same code and year
     const existedCourse = await Course.findOne({
@@ -49,12 +47,10 @@ router.post("/", verifyToken, async (req, res) => {
       user: req.userId,
     });
     if (existedCourse)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Course cannot have same code and year",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Course cannot have same code and year",
+      });
 
     const newCourse = new Course({
       name,
@@ -90,12 +86,10 @@ router.put("/:id", verifyToken, async (req, res) => {
       user: req.userId,
     });
     if (existedCourse && existedCourse._id != id)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Course cannot have the same code and year",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Course cannot have the same code and year",
+      });
 
     let updatedCourse = {
       name,
@@ -107,12 +101,10 @@ router.put("/:id", verifyToken, async (req, res) => {
       new: true,
     });
     if (!updatedCourse)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Course not found or user not authorized",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Course not found or user not authorized",
+      });
     res.json({
       success: true,
       message: "Course updated",
@@ -137,12 +129,10 @@ router.delete("/:id", verifyToken, async (req, res) => {
     const courseFilter = { _id: id, user: req.userId };
     const deletedCourse = await Course.findOneAndDelete(courseFilter);
     if (!deletedCourse)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Course not found or user not authorized",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Course not found or user not authorized",
+      });
     //delete all attendances of this course
     await Attendance.deleteMany({ course: id });
     //remove this course id from enrolledCourses array of all students
