@@ -61,7 +61,7 @@ function CourseContext({ children }) {
     }
   };
 
-  const getSelectedCourseInfo = (courseInfo, type) => {
+  const getSelectedCourseInfo = (courseInfo) => {
     const { courseId, date } = courseInfo;
     const selectedCourse = courseState.courses.find(
       (course) => course._id === courseId
@@ -135,7 +135,7 @@ function CourseContext({ children }) {
         dispatch({
           type: DELETE_COURSE,
           payload: {
-            deletedCourseId: courseId, //if delete the selected course??
+            deletedCourseId: courseId,
           },
         });
       }

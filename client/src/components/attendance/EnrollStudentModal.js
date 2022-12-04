@@ -15,8 +15,6 @@ import { courseContext } from "../../contexts/CourseContext";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { useState, useContext } from "react";
 
-// import { toast } from 'react-toastify';
-
 function EnrollStudentModal({ data }) {
   const { showEnrollStudentModal, setShowEnrollStudentModal } = data;
   const [isFinding, setIsFinding] = useState(false);

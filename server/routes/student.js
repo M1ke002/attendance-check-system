@@ -27,10 +27,8 @@ router.post("/enroll", verifyToken, async (req, res) => {
         message: "course not found/user not authenticated",
       });
 
-    let student = null;
-
     //check if student already exists
-    student = await Student.findOne({ studentId, user: req.userId });
+    let student = await Student.findOne({ studentId, user: req.userId });
 
     if (student) {
       //check if student is already enrolled in the course
@@ -77,6 +75,76 @@ router.post("/enroll", verifyToken, async (req, res) => {
   }
 });
 
+//@route POST /api/students/enroll-multiple
+//@desc enroll multiple students at once (input: array)
+//@accessability private
+router.post("/enroll-multiple", verifyToken, async (req, res) => {
+  const { studentData, courseId } = req.body;
+  let studentCount = 0;
+  const length = studentData.length;
+  const addedStudents = [];
+  //validation
+  if (!studentData || !courseId)
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing student data/courseId" });
+
+  try {
+    //check if course exists
+    const course = await Course.findOne({ _id: courseId, user: req.userId });
+    if (!course)
+      return res.status(400).json({
+        success: false,
+        message: "course not found/user not authenticated",
+      });
+
+    for (let data of studentData) {
+      const { studentId, name } = data;
+
+      if (!studentId) continue;
+
+      //check if student already exists
+      let student = await Student.findOne({ studentId, user: req.userId });
+
+      if (student) {
+        const existedCourseId = student.enrolledCourses.find((id) =>
+          id.equals(courseId)
+        );
+        //already enrolled in course => skip
+        if (existedCourseId) continue;
+        student.enrolledCourses.push(courseId);
+      } else {
+        if (!name) continue;
+        student = new Student({
+          studentId,
+          name,
+          enrolledCourses: [courseId],
+          user: req.userId,
+        });
+      }
+      await student.save();
+      course.students.push(student._id);
+      addedStudents.push({ student });
+      studentCount++;
+    }
+    //add students to all attendance list of that course
+    await Attendance.updateMany(
+      { course: courseId, user: req.userId },
+      { $push: { records: { $each: [...addedStudents] } } }
+    );
+    course.markModified("students");
+    await course.save();
+    res.json({
+      success: true,
+      message: `${studentCount}/${length} students added`,
+      students: addedStudents,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 //@route PUT /api/students/unenroll/studentId
 //@desc remove student from a course
 //@accessability private
@@ -110,10 +178,15 @@ router.put("/unenroll/:id", verifyToken, async (req, res) => {
       });
 
     //remove course from enrolledCourses of the student
-    student = await Student.findOneAndUpdate(
-      { _id: id, user: req.userId },
-      { $pull: { enrolledCourses: courseId } }
+    // student = await Student.findOneAndUpdate(
+    //   { _id: id, user: req.userId },
+    //   { $pull: { enrolledCourses: courseId } }
+    // );
+
+    student.enrolledCourses = student.enrolledCourses.filter(
+      (id) => !id.equals(courseId)
     );
+    await student.save();
 
     //remove the student from the student list of the course
     await Course.findOneAndUpdate(
@@ -130,6 +203,60 @@ router.put("/unenroll/:id", verifyToken, async (req, res) => {
       success: true,
       message: "student removed from course",
       student,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+//@route PUT /api/students/unenroll-multiple
+//@desc remove multiple students from course at once(input: arr)
+//@accessability private
+router.put("/unenroll-multiple", verifyToken, async (req, res) => {
+  const { studentIds, courseId } = req.body;
+  let studentCount = 0;
+  const length = studentIds.length;
+  const removedStudents = [];
+  //validation
+  if (!studentIds || !courseId)
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing student ids/courseId" });
+
+  try {
+    studentIds.forEach(async (id) => {
+      //check if student exists
+      let student = await Student.findOne({ _id: id, user: req.userId });
+      if (!student) return;
+
+      //check if student is enrolled in the course
+      const existedCourseId = student.enrolledCourses.find((id) =>
+        id.equals(courseId)
+      );
+      if (!existedCourseId) return;
+
+      //remove course from enrolledCourses of the student
+      student.enrolledCourses = student.enrolledCourses.filter(
+        (id) => !id.equals(courseId)
+      );
+      await student.save();
+      removedStudents.push(student);
+      studentCount++;
+    });
+    const removedStudentIds = removedStudents.map((student) => student._id);
+    await Course.findOneAndUpdate(
+      { _id: courseId, user: req.userId },
+      { $pull: { students: { $in: [...removedStudentIds] } } }
+    );
+    await Attendance.updateMany(
+      { course: courseId, user: req.userId },
+      { $pull: { records: { student: { $in: [...removedStudentIds] } } } }
+    );
+    res.json({
+      success: true,
+      message: `${studentCount}/${length} students removed`,
+      removedStudents,
     });
   } catch (error) {
     console.log(error);

@@ -56,7 +56,18 @@ function StudentContext({ children }) {
     }
   };
 
-  const enrollStudentsByFile = async (file, courseId) => {};
+  const enrollMultipleStudents = async (data, courseId) => {
+    try {
+      const res = await axios.post(`${apiUrl}/students/enroll-multiple`, {
+        studentData: data,
+        courseId,
+      });
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
 
   const removeStudentFromCourse = async (studentInfo) => {
     try {
@@ -109,7 +120,7 @@ function StudentContext({ children }) {
     getSelectedStudent,
     deselectStudent,
     enrollStudentForCourse,
-    enrollStudentsByFile,
+    enrollMultipleStudents,
     removeStudentFromCourse,
     findStudents,
     studentState,
