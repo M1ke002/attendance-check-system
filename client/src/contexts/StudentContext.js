@@ -90,11 +90,7 @@ function StudentContext({ children }) {
 
   const removeMultipleStudentsFromCourse = async (data) => {
     try {
-      // const res = await axios.put(`${apiUrl}/students/unenroll-multiple`, data);
-      console.log(data);
-      const res = {
-        data: { success: true, message: "removed multiple students" },
-      };
+      const res = await axios.put(`${apiUrl}/students/unenroll-multiple`, data);
       return res.data;
     } catch (error) {
       if (error.response) return error.response.data;

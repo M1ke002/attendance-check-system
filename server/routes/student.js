@@ -219,22 +219,23 @@ router.put("/unenroll-multiple", verifyToken, async (req, res) => {
   const length = studentIds.length;
   const removedStudents = [];
   //validation
-  if (!studentIds || !courseId)
+  if (!studentIds || studentIds.length === 0 || !courseId)
     return res
       .status(400)
       .json({ success: false, message: "Missing student ids/courseId" });
 
   try {
-    studentIds.forEach(async (id) => {
+    for (let i = 0; i < studentIds.length; i++) {
+      const id = studentIds[i];
       //check if student exists
       let student = await Student.findOne({ _id: id, user: req.userId });
-      if (!student) return;
+      if (!student) continue;
 
       //check if student is enrolled in the course
       const existedCourseId = student.enrolledCourses.find((id) =>
         id.equals(courseId)
       );
-      if (!existedCourseId) return;
+      if (!existedCourseId) continue;
 
       //remove course from enrolledCourses of the student
       student.enrolledCourses = student.enrolledCourses.filter(
@@ -243,7 +244,7 @@ router.put("/unenroll-multiple", verifyToken, async (req, res) => {
       await student.save();
       removedStudents.push(student);
       studentCount++;
-    });
+    }
     const removedStudentIds = removedStudents.map((student) => student._id);
     await Course.findOneAndUpdate(
       { _id: courseId, user: req.userId },
