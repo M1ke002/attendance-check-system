@@ -26,7 +26,7 @@ function UploadFileModal({ data }) {
     getAllCourses,
   } = useContext(courseContext);
 
-  const { enrollMultipleStudents } = useContext(studentContext);
+  const { enrollMultipleStudentsForCourse } = useContext(studentContext);
 
   const { getAttendance } = useContext(attendanceContext);
 
@@ -101,7 +101,10 @@ function UploadFileModal({ data }) {
       setIsAdding(false);
       return;
     }
-    const res = await enrollMultipleStudents(extractedData, course._id);
+    const res = await enrollMultipleStudentsForCourse(
+      extractedData,
+      course._id
+    );
     if (res.success && res.students.length > 0) {
       await getAllCourses();
       await getAttendance({

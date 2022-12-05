@@ -2,6 +2,7 @@ import { GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import SaveIcon from "@mui/icons-material/Save";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import GroupRemoveIcon from "@mui/icons-material/GroupRemove";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import { toast } from "react-toastify";
@@ -10,26 +11,42 @@ import { useState } from "react";
 
 import UploadFileModal from "../attendance/UploadFileModal";
 import EnrollStudentModal from "../attendance/EnrollStudentModal";
+import ConfirmDeleteModal from "../attendance/ConfirmDeleteModal";
 
 function CustomToolBar(props) {
   const [showEnrollStudentModal, setShowEnrollStudentModal] = useState(false);
   const [showUploadFileModal, setShowUploadFileModal] = useState(false);
+  const [
+    showConfirmDeleteAllStudentsModal,
+    setShowConfirmDeleteAllStudentsModal,
+  ] = useState(false);
 
   const [isSavingData, setIsSavingData] = useState(false);
-  const { selectionModel, rows, attendanceData, getAllCourses } = props;
+  const {
+    selectionModel,
+    rows,
+    attendanceData,
+    getAllCourses,
+    handleRemoveStudent,
+  } = props;
 
   const { attendance, createAttendance, updateAttendance, course, date } =
     attendanceData;
 
-  const saveData = async () => {
+  const checkCourseSelected = () => {
     if (!course || !date) {
-      console.log("missing course date, cant save yet");
+      console.log("missing course date!");
       toast.error("Go to a course first!", {
         theme: "colored",
         autoClose: 2000,
       });
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const saveData = async () => {
+    if (!checkCourseSelected()) return;
     const records = rows.map((row) => {
       const present = selectionModel.includes(row.id);
       return {
@@ -106,15 +123,30 @@ function CustomToolBar(props) {
             variant="success"
             className="me-2 d-inline-flex justify-content-center w-2"
             style={{ width: "50px" }}
-            onClick={() => setShowUploadFileModal(true)}
+            onClick={() => {
+              if (checkCourseSelected()) setShowUploadFileModal(true);
+            }}
           >
             <UploadFileIcon fontSize="small" />
+          </Button>
+          <Button
+            variant="danger"
+            className="me-2 d-inline-flex justify-content-center w-2"
+            style={{ width: "50px" }}
+            onClick={() => {
+              if (checkCourseSelected())
+                setShowConfirmDeleteAllStudentsModal(true);
+            }}
+          >
+            <GroupRemoveIcon fontSize="small" />
           </Button>
           <Button
             variant="info"
             className="me-4 d-inline-flex justify-content-center w-2"
             style={{ width: "50px" }}
-            onClick={() => setShowEnrollStudentModal(true)}
+            onClick={() => {
+              if (checkCourseSelected()) setShowEnrollStudentModal(true);
+            }}
           >
             <PersonAddAlt1Icon fontSize="small" />
           </Button>
@@ -124,6 +156,22 @@ function CustomToolBar(props) {
       <UploadFileModal data={{ setShowUploadFileModal, showUploadFileModal }} />
       <EnrollStudentModal
         data={{ setShowEnrollStudentModal, showEnrollStudentModal }}
+      />
+      <ConfirmDeleteModal
+        showConfirmDeleteModal={showConfirmDeleteAllStudentsModal}
+        onHide={() => {
+          setShowConfirmDeleteAllStudentsModal(false);
+        }}
+        onDelete={() => {
+          handleRemoveStudent("all");
+          setShowConfirmDeleteAllStudentsModal(false);
+        }}
+        onCancel={() => {
+          setShowConfirmDeleteAllStudentsModal(false);
+        }}
+        message={{
+          body: "Remove all students from this course?",
+        }}
       />
     </>
   );

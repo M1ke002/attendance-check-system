@@ -88,6 +88,7 @@ function AttendanceTable() {
     getSelectedStudent,
     studentState: { selectedStudent },
     removeStudentFromCourse,
+    removeMultipleStudentsFromCourse,
     deselectStudent,
   } = useContext(studentContext);
 
@@ -150,13 +151,22 @@ function AttendanceTable() {
     setShowConfirmDeleteModal(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleRemoveStudent = async () => {
-    const { student } = selectedStudent;
+  const handleRemoveStudent = async (type) => {
     setIsDeleting(true);
-    const res = await removeStudentFromCourse({
-      studentId: student._id,
-      courseId: course._id,
-    });
+    let res = null;
+    if (type === "single") {
+      const { student } = selectedStudent;
+      res = await removeStudentFromCourse({
+        studentId: student._id,
+        courseId: course._id,
+      });
+    } else if (type === "all") {
+      const studentIds = rows.map((row) => row._id);
+      res = await removeMultipleStudentsFromCourse({
+        studentIds,
+        courseId: course._id,
+      });
+    }
     console.log(res);
     if (res.success) {
       await getAllCourses();
@@ -174,7 +184,7 @@ function AttendanceTable() {
         autoClose: 2000,
       });
     }
-    setShowConfirmDeleteModal(false);
+    // setShowConfirmDeleteModal(false); //FIX when pass to custom toolbar
     setIsDeleting(false);
   };
 
@@ -352,6 +362,7 @@ function AttendanceTable() {
                 date,
               },
               getAllCourses,
+              handleRemoveStudent,
             },
           }}
           selectionModel={selectionModel}
@@ -375,7 +386,10 @@ function AttendanceTable() {
           setShowConfirmDeleteModal(false);
           deselectStudent();
         }}
-        onDelete={handleRemoveStudent}
+        onDelete={() => {
+          handleRemoveStudent("single");
+          setShowConfirmDeleteModal(false);
+        }}
         onCancel={() => {
           setShowConfirmDeleteModal(false);
           deselectStudent();
