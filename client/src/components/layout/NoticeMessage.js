@@ -10,7 +10,7 @@ import { courseContext } from "../../contexts/CourseContext";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { getDayOfWeek } from "../../utils/utilsFunction";
 import { useContext } from "react";
-import ConfirmDeleteModal from "../attendance/ConfirmDeleteModal";
+import ConfirmDeleteModal from "./Modal/ConfirmDeleteModal";
 
 function NoticeMessage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -73,7 +73,7 @@ function NoticeMessage() {
           Attendance for course {course.courseCode} - {course.year} on{" "}
           {getDayOfWeek(date)}, {date}{" "}
           <span className="ms-1 fs-6 text-dark">
-            ({attendance ? "existed" : "new"})
+            ({attendance ? "existing record" : "new record"})
           </span>
         </h5>
         <Button

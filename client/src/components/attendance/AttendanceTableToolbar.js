@@ -9,11 +9,11 @@ import { toast } from "react-toastify";
 
 import { useState } from "react";
 
-import UploadFileModal from "../attendance/UploadFileModal";
-import EnrollStudentModal from "../attendance/EnrollStudentModal";
-import ConfirmDeleteModal from "../attendance/ConfirmDeleteModal";
+import UploadFileModal from "../layout/Modal/UploadFileModal";
+import EnrollStudentModal from "../layout/Modal/EnrollStudentModal";
+import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
 
-function CustomToolBar(props) {
+function AttendanceTableToolbar(props) {
   const [showEnrollStudentModal, setShowEnrollStudentModal] = useState(false);
   const [showUploadFileModal, setShowUploadFileModal] = useState(false);
   const [
@@ -177,4 +177,4 @@ function CustomToolBar(props) {
   );
 }
 
-export default CustomToolBar;
+export default AttendanceTableToolbar;

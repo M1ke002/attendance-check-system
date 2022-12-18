@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Landing from "./components/layout/Landing";
 import Auth from "./pages/Auth";
 import Attendance from "./pages/Attendance";
+import Courses from "./pages/Courses";
+import CoursePage from "./pages/CoursePage";
 import AuthContextProvider from "./contexts/AuthContext";
 import AttendanceContextProvider from "./contexts/AttendanceContext";
 import CourseContextProvider from "./contexts/CourseContext";
@@ -24,7 +26,6 @@ function App() {
             <AuthContextProvider>
               <Router>
                 <Routes>
-                  <Route exact path="/test" element={<Test />} />
                   <Route exact path="/" element={<Landing />} />
                   <Route
                     exact
@@ -38,6 +39,13 @@ function App() {
                   />
                   <Route element={<ProtectedRoutes />}>
                     <Route exact path="/attendance" element={<Attendance />} />
+                    <Route exact path="/courses" element={<Courses />} />
+                    <Route
+                      exact
+                      path="/courses/:courseId"
+                      element={<CoursePage />}
+                    />
+                    <Route exact path="/test" element={<Test />} />
                   </Route>
                 </Routes>
               </Router>

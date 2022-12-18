@@ -1,4 +1,4 @@
-import { createContext, useReducer } from "react";
+import { createContext, useReducer, useEffect } from "react";
 import axios from "axios";
 import { apiUrl } from "./constants";
 import {
@@ -22,6 +22,13 @@ function CourseContext({ children }) {
     },
     isCourseLoading: true,
   });
+
+  useEffect(() => {
+    const getCourses = async () => {
+      await getAllCourses();
+    };
+    getCourses();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   console.log(courseState.courses);
 

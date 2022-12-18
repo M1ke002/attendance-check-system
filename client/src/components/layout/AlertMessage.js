@@ -12,6 +12,10 @@ function AlertMessage({ data }) {
                         background-color: #ffd8dc; 
                     }
 
+                    .alert-light-success {
+                      background-color: #ddf3d8;
+                    }
+
                     .alert-dismissible {
                         padding-right: 0;
                     }

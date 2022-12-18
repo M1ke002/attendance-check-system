@@ -5,12 +5,12 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import Badge from "react-bootstrap/Badge";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import CustomToolBar from "../layout/CustomToolBar";
+import AttendanceTableToolbar from "./AttendanceTableToolbar";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { courseContext } from "../../contexts/CourseContext";
 import { studentContext } from "../../contexts/StudentContext";
 import { toast } from "react-toastify";
-import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
 
 import NumbersIcon from "@mui/icons-material/Numbers";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -141,7 +141,7 @@ function AttendanceTable() {
     }
   }, [attendance, course, date]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const deleteStudent = useCallback((id) => {
+  const onDeleteStudent = useCallback((id) => {
     setRows((prevRows) => {
       getSelectedStudent({
         student: prevRows.find((row) => row.id === id),
@@ -315,17 +315,17 @@ function AttendanceTable() {
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={() => deleteStudent(params.id)}
+            onClick={() => onDeleteStudent(params.id)}
           />,
         ],
       },
     ],
-    [deleteStudent]
+    [onDeleteStudent]
   );
 
   return (
     <>
-      <h4 className="text-center">Enrolled students</h4>
+      <h4 className="text-center">Attendance list</h4>
       <hr style={{ opacity: 0.15 }} />
       <div style={{ height: rows.length === 0 ? 350 : 500, width: "100%" }}>
         <StripedDataGrid
@@ -349,7 +349,7 @@ function AttendanceTable() {
                 ? `${count.toLocaleString()} students selected (tick to check attendance)`
                 : `${count.toLocaleString()} student selected (tick to check attendance)`,
           }}
-          components={{ Toolbar: CustomToolBar }}
+          components={{ Toolbar: AttendanceTableToolbar }}
           componentsProps={{
             toolbar: {
               selectionModel,

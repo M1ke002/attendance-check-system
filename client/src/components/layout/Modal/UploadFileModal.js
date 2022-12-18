@@ -7,14 +7,14 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
 
-import excelIcon from "../../assets/excel.svg";
-import uploadImg from "../../assets/cloud-upload-regular-240.png";
+import excelIcon from "../../../assets/excel.svg";
+import uploadImg from "../../../assets/cloud-upload-regular-240.png";
 
 import { useRef, useState, useContext } from "react";
 import readXlsxFile from "read-excel-file";
-import { courseContext } from "../../contexts/CourseContext";
-import { studentContext } from "../../contexts/StudentContext";
-import { attendanceContext } from "../../contexts/AttendanceContext";
+import { courseContext } from "../../../contexts/CourseContext";
+import { studentContext } from "../../../contexts/StudentContext";
+import { attendanceContext } from "../../../contexts/AttendanceContext";
 
 function UploadFileModal({ data }) {
   const { showUploadFileModal, setShowUploadFileModal } = data;

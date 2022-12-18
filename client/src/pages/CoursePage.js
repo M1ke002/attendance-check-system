@@ -2,13 +2,15 @@ import Container from "react-bootstrap/Container";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import Card from "react-bootstrap/Card";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 import CourseDetails from "../components/courses/CourseDetails";
 import EnrolledStudentsTable from "../components/courses/EnrolledStudentsTable";
 
 document.body.style.backgroundColor = "#f7f7f9";
-function CourseDetail() {
+function CoursePage() {
+  const { courseId } = useParams();
+  console.log(courseId);
   const [key, setKey] = useState("details");
   return (
     <>
@@ -33,7 +35,7 @@ function CourseDetail() {
             <Tabs variant="pills" activeKey={key} onSelect={(k) => setKey(k)}>
               <Tab eventKey="details" title="Details" />
               <Tab eventKey="students" title="Enrolled students" />
-              <Tab eventKey="attendance" title="Attendance records" />
+              <Tab eventKey="stats" title="Stats" />
             </Tabs>
           </Card.Body>
         </Card>
@@ -42,11 +44,11 @@ function CourseDetail() {
         ) : key === "students" ? (
           <EnrolledStudentsTable />
         ) : (
-          "attendance"
+          "Statistics"
         )}
       </Container>
     </>
   );
 }
 
-export default CourseDetail;
+export default CoursePage;

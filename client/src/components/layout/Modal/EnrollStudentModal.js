@@ -9,10 +9,10 @@ import Spinner from "react-bootstrap/Spinner";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import AlertMessage from "../layout/AlertMessage";
-import { studentContext } from "../../contexts/StudentContext";
-import { courseContext } from "../../contexts/CourseContext";
-import { attendanceContext } from "../../contexts/AttendanceContext";
+import AlertMessage from "../AlertMessage";
+import { studentContext } from "../../../contexts/StudentContext";
+import { courseContext } from "../../../contexts/CourseContext";
+import { attendanceContext } from "../../../contexts/AttendanceContext";
 import { useState, useContext } from "react";
 
 function EnrollStudentModal({ data }) {
@@ -67,6 +67,7 @@ function EnrollStudentModal({ data }) {
   };
 
   const onCloseModal = () => {
+    if (isAdding) return;
     setShowEnrollStudentModal(false);
     setStudentInputField({
       studentId: "",
@@ -257,7 +258,7 @@ function EnrollStudentModal({ data }) {
             <Button variant="info" type="submit" disabled={isAdding}>
               {isAdding ? "Adding..." : "Add"}
             </Button>
-            <Button variant="danger" onClick={onCloseModal}>
+            <Button variant="danger" onClick={onCloseModal} disabled={isAdding}>
               Cancel
             </Button>
           </Modal.Footer>

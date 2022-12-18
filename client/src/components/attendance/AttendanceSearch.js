@@ -3,7 +3,7 @@ import Form from "react-bootstrap/Form";
 import Select from "react-select/";
 import { toast } from "react-toastify";
 
-import { useEffect, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { courseContext } from "../../contexts/CourseContext";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { convertDateFormat } from "../../utils/utilsFunction";
@@ -28,25 +28,14 @@ function AttendanceSearch() {
 
   const [isLoadingAttendance, setIsLoadingAttendance] = useState(false);
 
-  const {
-    courseState,
-    getAllCourses,
-    getSelectedCourseInfo,
-    clearSelectedCourseInfo,
-  } = useContext(courseContext);
+  const { courseState, getSelectedCourseInfo, clearSelectedCourseInfo } =
+    useContext(courseContext);
 
   const { courses, isCourseLoading } = courseState;
 
   const { getAttendance, clearAttendance } = useContext(attendanceContext);
 
   // console.log(course, date);
-
-  useEffect(() => {
-    const getCourses = async () => {
-      await getAllCourses();
-    };
-    getCourses();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (e) => {
     e.preventDefault();
