@@ -69,7 +69,7 @@ const getTotalAttendanceForStudent = (studentId, course) => {
 };
 
 function AttendanceTable() {
-  console.log("rerender");
+  // console.log("rerender");
   const {
     attendanceState: { attendance },
     getAttendance,

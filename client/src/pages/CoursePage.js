@@ -3,15 +3,31 @@ import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import Card from "react-bootstrap/Card";
 import { Link, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
+import { courseContext } from "../contexts/CourseContext";
 import CourseDetails from "../components/courses/CourseDetails";
 import EnrolledStudentsTable from "../components/courses/EnrolledStudentsTable";
+import CourseStats from "../components/courses/CourseStats";
 
-document.body.style.backgroundColor = "#f7f7f9";
 function CoursePage() {
   const { courseId } = useParams();
-  console.log(courseId);
+  const { courseState } = useContext(courseContext);
   const [key, setKey] = useState("details");
+
+  let name = "Loading...";
+
+  const { courses } = courseState;
+  const course = courses.find((course) => course._id === courseId);
+  if (course) {
+    name = course.name;
+  }
+
+  useEffect(() => {
+    document.body.style.backgroundColor = "#f7f7f9";
+    return () => {
+      document.body.style.backgroundColor = "#fff";
+    };
+  }, []);
   return (
     <>
       <Container>
@@ -24,7 +40,7 @@ function CoursePage() {
           <Link style={{ color: "black", marginRight: "5px" }} to="/courses">
             Courses
           </Link>
-          {">"} Machine learning
+          {">"} {name}
         </div>
         <Card
           border="0"
@@ -39,13 +55,11 @@ function CoursePage() {
             </Tabs>
           </Card.Body>
         </Card>
-        {key === "details" ? (
-          <CourseDetails />
-        ) : key === "students" ? (
-          <EnrolledStudentsTable />
-        ) : (
-          "Statistics"
-        )}
+        {key === "details"
+          ? course && <CourseDetails course={course} />
+          : key === "students"
+          ? course && <EnrolledStudentsTable course={course} />
+          : course && <CourseStats course={course} />}
       </Container>
     </>
   );

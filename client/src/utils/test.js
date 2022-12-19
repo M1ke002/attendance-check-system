@@ -7,7 +7,6 @@ import { useState } from "react";
 import CourseDetails from "../components/courses/CourseDetails";
 import EnrolledStudentsTable from "../components/courses/EnrolledStudentsTable";
 
-document.body.style.backgroundColor = "#f7f7f9";
 function CourseDetail() {
   const [key, setKey] = useState("details");
   return (

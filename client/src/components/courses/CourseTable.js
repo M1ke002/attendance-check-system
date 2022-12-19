@@ -96,7 +96,6 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
 // ];
 
 function CourseTable() {
-  console.log("render coursetable");
   const navigate = useNavigate();
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [showEditCourseModal, setShowEditCourseModal] = useState(false);
@@ -107,7 +106,6 @@ function CourseTable() {
 
   const {
     courseState: { courses },
-    getAllCourses,
     deleteCourse,
   } = useContext(courseContext);
 
@@ -139,8 +137,8 @@ function CourseTable() {
   const handleDeleteCourse = async () => {
     setIsDeleting(true);
     const res = await deleteCourse(selectedCourse._id);
+    setIsDeleting(false);
     if (res.success) {
-      await getAllCourses();
       toast.success(res.message, {
         theme: "colored",
         autoClose: 2000,
@@ -151,7 +149,6 @@ function CourseTable() {
         autoClose: 2000,
       });
     }
-    setIsDeleting(false);
   };
 
   const columns = [

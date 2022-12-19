@@ -1,8 +1,14 @@
-import { useState, useCallback, useMemo, useContext, useEffect } from "react";
+import { useState, useEffect, useContext, useCallback, useMemo } from "react";
 import { alpha, styled } from "@mui/material/styles";
 import { DataGrid, GridActionsCellItem, gridClasses } from "@mui/x-data-grid";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import StudentsTableToolbar from "./StudentsTableToolbar";
+import { studentContext } from "../../contexts/StudentContext";
+import { courseContext } from "../../contexts/CourseContext";
+import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
+import { toast } from "react-toastify";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import NumbersIcon from "@mui/icons-material/Numbers";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -46,119 +52,155 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
   },
 }));
 
-function EnrolledStudentsTable() {
+function EnrolledStudentsTable({ course }) {
+  const { getAllCourses } = useContext(courseContext);
+  const {
+    studentState: { selectedStudent },
+    getSelectedStudent,
+    removeMultipleStudentsFromCourse,
+    removeStudentFromCourse,
+    deselectStudent,
+  } = useContext(studentContext);
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [pageSize, setPageSize] = useState(10);
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      studentId: "BI11-001",
-      name: "John Doe",
-      course: "Machine learning",
-    },
-    {
-      id: 2,
-      studentId: "BI11-001",
-      name: "John Doe",
-      course: "Machine learning",
-    },
-    {
-      id: 3,
-      studentId: "BI11-001",
-      name: "John Doe",
-      course: "Machine learning",
-    },
-    {
-      id: 4,
-      studentId: "BI11-001",
-      name: "John Doe",
-      course: "Machine learning",
-    },
-    {
-      id: 5,
-      studentId: "BI11-001",
-      name: "John Doe",
-      course: "Machine learning",
-    },
-    {
-      id: 6,
-      studentId: "BI11-001",
-      name: "John Doe",
-      course: "Machine learning",
-    },
-    {
-      id: 7,
-      studentId: "BI11-001",
-      name: "John Doe",
-      course: "Machine learning",
-    },
-  ]);
-  const columns = [
-    {
-      field: "id",
-      width: 120,
-      headerAlign: "center",
-      align: "center",
-      renderHeader: () => (
-        <div className="d-flex align-items-center">
-          <NumbersIcon fontSize="small" />
-          <span className="ms-1">No.</span>
-        </div>
-      ),
-    },
-    {
-      field: "studentId",
-      width: 170,
-      headerAlign: "center",
-      align: "center",
-      renderHeader: () => (
-        <div className="d-flex align-items-center">
-          <BookmarkIcon fontSize="small" />
-          <span className="ms-1">Student ID</span>
-        </div>
-      ),
-    },
-    {
-      field: "name",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-      renderHeader: () => (
-        <div className="d-flex align-items-center">
-          <PermIdentityOutlinedIcon fontSize="small" />
-          <span className="ms-1">Student Name</span>
-        </div>
-      ),
-    },
-    {
-      field: "course",
-      sortable: false,
-      width: 400,
-      headerAlign: "center",
-      align: "center",
-      getApplyQuickFilterFn: undefined,
-      renderHeader: () => (
-        <div className="d-flex align-items-center">
-          <LibraryBooksOutlinedIcon fontSize="small" />
-          <span className="ms-1">Course</span>
-        </div>
-      ),
-    },
-    {
-      field: "actions",
-      width: 140,
-      type: "actions",
-      sortable: false,
-      renderHeader: () => (
-        <div className="d-flex align-items-center">
-          <BorderColorOutlinedIcon fontSize="small" />
-          <span className="ms-1">Actions</span>
-        </div>
-      ),
-      getActions: (params) => [
-        <GridActionsCellItem icon={<DeleteIcon />} label="Delete" />,
-      ],
-    },
-  ];
+  const [rows, setRows] = useState([]);
+  const { students, name: courseName } = course;
+
+  useEffect(() => {
+    const studentList = students.map((student, index) => {
+      return {
+        id: index + 1,
+        _id: student._id,
+        studentId: student.studentId,
+        name: student.name,
+        course: courseName,
+      };
+    });
+    setRows(studentList);
+  }, [students.length]);
+
+  const onDeleteStudent = useCallback((id) => {
+    setRows((prevRows) => {
+      getSelectedStudent({
+        student: prevRows.find((row) => row.id === id),
+      });
+      return prevRows;
+    });
+    setShowConfirmDeleteModal(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleRemoveStudent = async (type) => {
+    setIsDeleting(true);
+    let res = null;
+    if (type === "single") {
+      const { student } = selectedStudent;
+      res = await removeStudentFromCourse({
+        studentId: student._id,
+        courseId: course._id,
+      });
+    } else if (type === "all") {
+      const studentIds = rows.map((row) => row._id);
+      res = await removeMultipleStudentsFromCourse({
+        studentIds,
+        courseId: course._id,
+      });
+    }
+    console.log(res);
+    if (res.success) {
+      await getAllCourses();
+      toast.success(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    } else {
+      toast.error(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    }
+    // setShowConfirmDeleteModal(false); //FIX when pass to custom toolbar
+    setIsDeleting(false);
+  };
+
+  const columns = useMemo(
+    () => [
+      {
+        field: "id",
+        width: 120,
+        headerAlign: "center",
+        align: "center",
+        renderHeader: () => (
+          <div className="d-flex align-items-center">
+            <NumbersIcon fontSize="small" />
+            <span className="ms-1">No.</span>
+          </div>
+        ),
+      },
+      {
+        field: "_id",
+      },
+      {
+        field: "studentId",
+        width: 170,
+        headerAlign: "center",
+        align: "center",
+        renderHeader: () => (
+          <div className="d-flex align-items-center">
+            <BookmarkIcon fontSize="small" />
+            <span className="ms-1">Student ID</span>
+          </div>
+        ),
+      },
+      {
+        field: "name",
+        flex: 1,
+        headerAlign: "center",
+        align: "center",
+        renderHeader: () => (
+          <div className="d-flex align-items-center">
+            <PermIdentityOutlinedIcon fontSize="small" />
+            <span className="ms-1">Student Name</span>
+          </div>
+        ),
+      },
+      {
+        field: "course",
+        sortable: false,
+        width: 400,
+        headerAlign: "center",
+        align: "center",
+        getApplyQuickFilterFn: undefined,
+        renderHeader: () => (
+          <div className="d-flex align-items-center">
+            <LibraryBooksOutlinedIcon fontSize="small" />
+            <span className="ms-1">Course</span>
+          </div>
+        ),
+      },
+      {
+        field: "actions",
+        width: 140,
+        type: "actions",
+        sortable: false,
+        renderHeader: () => (
+          <div className="d-flex align-items-center">
+            <BorderColorOutlinedIcon fontSize="small" />
+            <span className="ms-1">Actions</span>
+          </div>
+        ),
+        getActions: (params) => [
+          <GridActionsCellItem
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={() => onDeleteStudent(params.id)}
+          />,
+        ],
+      },
+    ],
+    [onDeleteStudent]
+  );
 
   return (
     <>
@@ -189,9 +231,54 @@ function EnrolledStudentsTable() {
           }}
           localeText={{ noRowsLabel: "No students found" }}
           components={{ Toolbar: StudentsTableToolbar }}
+          componentsProps={{
+            toolbar: {
+              rows,
+              handleRemoveStudent,
+            },
+          }}
         />
         <GlobalStyles styles={{ p: { marginTop: "auto" } }} />
       </div>
+      <ConfirmDeleteModal
+        showConfirmDeleteModal={showConfirmDeleteModal}
+        onHide={() => {
+          setShowConfirmDeleteModal(false);
+          deselectStudent();
+        }}
+        onDelete={() => {
+          // handleRemoveStudent("single");
+          setShowConfirmDeleteModal(false);
+        }}
+        onCancel={() => {
+          setShowConfirmDeleteModal(false);
+          deselectStudent();
+        }}
+        message={{
+          body: selectedStudent ? (
+            <>
+              Remove student:{" "}
+              <strong>
+                {selectedStudent.student.studentId}{" "}
+                {selectedStudent.student.name}{" "}
+              </strong>
+              from this course?
+            </>
+          ) : (
+            "Removing..."
+          ),
+        }}
+      />
+      <Backdrop
+        sx={{
+          color: "#fff",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: "rgb(0 0 0 / 30%);",
+        }}
+        open={isDeleting}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </>
   );
 }

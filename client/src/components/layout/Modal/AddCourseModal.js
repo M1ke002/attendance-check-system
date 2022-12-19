@@ -5,18 +5,12 @@ import Button from "react-bootstrap/Button";
 import AlertMessage from "../AlertMessage";
 import { useState, useContext } from "react";
 import { courseContext } from "../../../contexts/CourseContext";
-
-const getYearRange = (year) => {
-  const arr = [];
-  for (let i = year - 2; i <= year + 2; i++) arr.push(i);
-  return arr;
-};
+import { getYearRange } from "../../../utils/utilsFunction";
 
 const currYear = new Date().getFullYear();
 const years = getYearRange(currYear);
 
 function AddCourseModal({ data }) {
-  console.log("rendeer add modal");
   const { setShowAddCourseModal, showAddCourseModal } = data;
   const [isAdding, setIsAdding] = useState(false);
   const [inputField, setInputField] = useState({
@@ -25,7 +19,7 @@ function AddCourseModal({ data }) {
     year: currYear,
   });
   const { courseName, courseCode, year } = inputField;
-  const { getAllCourses, createCourse } = useContext(courseContext);
+  const { createCourse } = useContext(courseContext);
   const [alert, setAlert] = useState({
     message: "",
     show: false,
@@ -50,9 +44,9 @@ function AddCourseModal({ data }) {
       courseCode,
       year,
     });
+    setIsAdding(false);
     console.log(res);
     if (res.success) {
-      await getAllCourses();
       setAlert({
         ...alert,
         message: res.message,
@@ -67,7 +61,6 @@ function AddCourseModal({ data }) {
         type: "light-danger",
       });
     }
-    setIsAdding(false);
   };
 
   const handleFormInput = (e) => {

@@ -116,7 +116,7 @@ function AttendanceSearch() {
           clearSelectedCourseInfo();
         }}
       >
-        Reset
+        Clear
       </Button>
     </Form>
   );

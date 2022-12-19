@@ -5,22 +5,17 @@ import Button from "react-bootstrap/Button";
 import AlertMessage from "../AlertMessage";
 import { useState, useContext, useEffect } from "react";
 import { courseContext } from "../../../contexts/CourseContext";
-
-const getYears = (year) => {
-  const arr = [];
-  for (let i = year - 2; i <= year + 2; i++) arr.push(i);
-  return arr;
-};
+import { getYearRange } from "../../../utils/utilsFunction";
 
 const currYear = new Date().getFullYear();
-const years = getYears(currYear);
+const years = getYearRange(currYear);
 
 function EditCourseModal({ data }) {
   const { showEditCourseModal, setShowEditCourseModal, selectedCourse } = data;
   const [isSaving, setIsSaving] = useState(false);
   const [inputField, setInputField] = useState(selectedCourse);
   const { name, code, year, _id } = inputField;
-  const { getAllCourses, updateCourse } = useContext(courseContext);
+  const { updateCourse } = useContext(courseContext);
   const [alert, setAlert] = useState({
     message: "",
     show: false,
@@ -49,9 +44,9 @@ function EditCourseModal({ data }) {
       year,
       _id,
     });
+    setIsSaving(false);
     console.log(res);
     if (res.success) {
-      await getAllCourses();
       setAlert({
         ...alert,
         message: res.message,
@@ -66,7 +61,6 @@ function EditCourseModal({ data }) {
         type: "light-danger",
       });
     }
-    setIsSaving(false);
   };
 
   const handleFormInput = (e) => {

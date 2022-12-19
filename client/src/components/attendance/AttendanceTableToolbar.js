@@ -110,7 +110,7 @@ function AttendanceTableToolbar(props) {
                 className="me-1"
               />
             ) : (
-              <SaveIcon />
+              <SaveIcon /> //TODO: disable btn if course has no students?
             )}
             <span className="ms-1">{isSavingData ? "Saving..." : "Save"}</span>
           </Button>
