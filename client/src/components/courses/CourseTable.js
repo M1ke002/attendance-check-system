@@ -160,7 +160,6 @@ function CourseTable() {
       renderHeader: () => (
         <div className="d-flex align-items-center">
           <NumbersIcon fontSize="small" />
-          <span className="ms-1">No.</span>
         </div>
       ),
     },
@@ -252,9 +251,9 @@ function CourseTable() {
 
   return (
     <>
-      <h4 style={{ textAlign: "center", paddingTop: "2rem" }}>All courses</h4>
+      <h4 style={{ textAlign: "center", paddingTop: "3rem" }}>All courses</h4>
       <hr style={{ opacity: 0.15 }} />
-      <div style={{ height: 580, width: "100%" }}>
+      <div style={{ height: 570, width: "100%" }}>
         <StripedDataGrid
           rows={rows}
           columns={columns}

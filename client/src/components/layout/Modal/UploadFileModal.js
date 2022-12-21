@@ -17,7 +17,11 @@ import { studentContext } from "../../../contexts/StudentContext";
 import { attendanceContext } from "../../../contexts/AttendanceContext";
 
 function UploadFileModal({ data }) {
-  const { showUploadFileModal, setShowUploadFileModal } = data;
+  const {
+    showUploadFileModal,
+    setShowUploadFileModal,
+    course: currCoursePage,
+  } = data;
 
   const {
     courseState: {
@@ -79,6 +83,13 @@ function UploadFileModal({ data }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!file) {
+      toast.error("Missing file!", {
+        theme: "colored",
+        autoClose: 2000,
+      });
+      return;
+    }
     if (studentIdField.trim() === "" || studentNameField.trim() === "") {
       console.log("Missing column names");
       toast.error("Missing column names", {
@@ -91,7 +102,7 @@ function UploadFileModal({ data }) {
     const rows = await readXlsxFile(file);
     console.log(rows);
     const extractedData = getDataFromFile(rows);
-    console.log(extractedData, course._id);
+    console.log(extractedData, currCoursePage._id);
     if (!extractedData || extractedData.length === 0) {
       console.log("can't find student information in file");
       toast.error("can't find student information in file", {
@@ -103,14 +114,17 @@ function UploadFileModal({ data }) {
     }
     const res = await enrollMultipleStudentsForCourse(
       extractedData,
-      course._id
+      currCoursePage._id
     );
     if (res.success && res.students.length > 0) {
       await getAllCourses();
-      await getAttendance({
-        courseId: course._id,
-        date,
-      });
+      //if there is a course selected at attendance page and it is same as the course in course details
+      if (course && date && course._id === currCoursePage._id) {
+        await getAttendance({
+          courseId: course._id,
+          date,
+        });
+      }
       toast.success(res.message, {
         theme: "colored",
         autoClose: 2000,

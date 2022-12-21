@@ -92,7 +92,7 @@ function CourseStats({ course }) {
   // console.log(data);
   return (
     <>
-      <Card border="0" className="mt-3 p-2">
+      <Card border="0" className="mt-3 p-2 shadow-sm">
         <Card.Body style={{ height: "500px" }}>
           <p className="text-center" style={{ fontSize: "20px" }}>
             <strong>Overall attendance</strong>

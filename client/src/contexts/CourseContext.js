@@ -1,4 +1,4 @@
-import { createContext, useReducer, useEffect } from "react";
+import { createContext, useReducer, useEffect, useContext } from "react";
 import axios from "axios";
 import { apiUrl } from "./constants";
 import {
@@ -10,10 +10,14 @@ import {
   UPDATE_COURSE,
 } from "../reducers/constants";
 import courseReducer from "../reducers/courseReducer";
+import { authContext } from "./AuthContext";
 
 export const courseContext = createContext();
 
 function CourseContext({ children }) {
+  const {
+    authState: { isAuthenticated },
+  } = useContext(authContext);
   const [courseState, dispatch] = useReducer(courseReducer, {
     courses: [],
     selectedCourseInfo: {
@@ -24,11 +28,12 @@ function CourseContext({ children }) {
   });
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     const getCourses = async () => {
       await getAllCourses();
     };
     getCourses();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   console.log(courseState.courses);
 

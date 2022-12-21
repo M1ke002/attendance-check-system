@@ -1,11 +1,9 @@
-import { useEffect, createContext, useReducer } from "react";
+import { createContext, useReducer } from "react";
 import { apiUrl } from "./constants";
 import studentReducer from "../reducers/studentReducer";
 import axios from "axios";
 
 import {
-  STUDENTS_LOADED_SUCCESS,
-  STUDENTS_LOADED_FAILED,
   SELECT_STUDENT,
   DESELECT_STUDENT,
   REMOVE_STUDENT_FROM_COURSE,
@@ -15,36 +13,36 @@ export const studentContext = createContext();
 
 function StudentContext({ children }) {
   const [studentState, dispatch] = useReducer(studentReducer, {
-    students: [], //TODO: search student directly from db
+    students: [], //TODO: search student directly from db, DONE
     selectedStudent: null,
   });
 
   // console.log(studentState.students);
 
-  useEffect(() => {
-    const getAllStudents = async () => {
-      try {
-        const res = await axios.get(`${apiUrl}/students`);
-        if (res.data.success) {
-          dispatch({
-            type: STUDENTS_LOADED_SUCCESS,
-            payload: {
-              students: res.data.students,
-            },
-          });
-        }
-        return res.data;
-      } catch (error) {
-        dispatch({
-          type: STUDENTS_LOADED_FAILED,
-          payload: {},
-        });
-        if (error.response) return error.response.data;
-        else return { success: false, message: error.message };
-      }
-    };
-    getAllStudents();
-  }, []);
+  // useEffect(() => {
+  //   const getAllStudents = async () => {
+  //     try {
+  //       const res = await axios.get(`${apiUrl}/students`);
+  //       if (res.data.success) {
+  //         dispatch({
+  //           type: STUDENTS_LOADED_SUCCESS,
+  //           payload: {
+  //             students: res.data.students,
+  //           },
+  //         });
+  //       }
+  //       return res.data;
+  //     } catch (error) {
+  //       dispatch({
+  //         type: STUDENTS_LOADED_FAILED,
+  //         payload: {},
+  //       });
+  //       if (error.response) return error.response.data;
+  //       else return { success: false, message: error.message };
+  //     }
+  //   };
+  //   getAllStudents();
+  // }, []);
 
   const enrollStudentForCourse = async (enrollInfo) => {
     try {

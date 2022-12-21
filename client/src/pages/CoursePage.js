@@ -8,6 +8,7 @@ import { courseContext } from "../contexts/CourseContext";
 import CourseDetails from "../components/courses/CourseDetails";
 import EnrolledStudentsTable from "../components/courses/EnrolledStudentsTable";
 import CourseStats from "../components/courses/CourseStats";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 function CoursePage() {
   const { courseId } = useParams();
@@ -40,11 +41,11 @@ function CoursePage() {
           <Link style={{ color: "black", marginRight: "5px" }} to="/courses">
             Courses
           </Link>
-          {">"} {name}
+          {<ChevronRightIcon fontSize="small" />} {name}
         </div>
         <Card
           border="0"
-          className="d-flex justify-content-center"
+          className="d-flex justify-content-center shadow-sm"
           style={{ height: "70px" }}
         >
           <Card.Body>

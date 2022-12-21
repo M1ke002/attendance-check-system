@@ -16,7 +16,11 @@ import { attendanceContext } from "../../../contexts/AttendanceContext";
 import { useState, useContext } from "react";
 
 function EnrollStudentModal({ data }) {
-  const { showEnrollStudentModal, setShowEnrollStudentModal } = data;
+  const {
+    showEnrollStudentModal,
+    setShowEnrollStudentModal,
+    course: currCoursePage,
+  } = data;
   const [isFinding, setIsFinding] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [key, setKey] = useState("add students");
@@ -81,16 +85,6 @@ function EnrollStudentModal({ data }) {
 
   const handleEnrollStudent = async (e) => {
     e.preventDefault();
-    if (!course) {
-      console.log("Must go to a course first!");
-      setAlert({
-        ...alert,
-        message: "Must go to a course first!",
-        show: true,
-        type: "light-danger",
-      });
-      return;
-    }
     let enrollInfo = null;
     if (key === "find students") {
       if (
@@ -109,7 +103,7 @@ function EnrollStudentModal({ data }) {
       // console.log(selectedStudentField, course._id);
       enrollInfo = {
         studentId: selectedStudentField,
-        courseId: course._id,
+        courseId: currCoursePage._id,
       };
     } else if (key === "add students") {
       if (studentId.trim() === "") {
@@ -126,7 +120,7 @@ function EnrollStudentModal({ data }) {
       enrollInfo = {
         studentId,
         name,
-        courseId: course._id,
+        courseId: currCoursePage._id,
       };
     }
     if (!enrollInfo) {
@@ -137,10 +131,14 @@ function EnrollStudentModal({ data }) {
     console.log(res);
     if (res.success) {
       await getAllCourses();
-      await getAttendance({
-        courseId: course._id,
-        date,
-      });
+      //if there is a course selected at attendance page and it is same as the course in course details
+      if (course && date && course._id === currCoursePage._id) {
+        //then update the attendance as well
+        await getAttendance({
+          courseId: course._id,
+          date,
+        });
+      }
       setAlert({
         ...alert,
         message: `${res.message}: ${res.student.name}`,

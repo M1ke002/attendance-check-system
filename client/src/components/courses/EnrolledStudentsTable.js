@@ -3,6 +3,7 @@ import { alpha, styled } from "@mui/material/styles";
 import { DataGrid, GridActionsCellItem, gridClasses } from "@mui/x-data-grid";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import StudentsTableToolbar from "./StudentsTableToolbar";
+import { attendanceContext } from "../../contexts/AttendanceContext";
 import { studentContext } from "../../contexts/StudentContext";
 import { courseContext } from "../../contexts/CourseContext";
 import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
@@ -53,7 +54,12 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
 }));
 
 function EnrolledStudentsTable({ course }) {
-  const { getAllCourses } = useContext(courseContext);
+  const {
+    courseState: {
+      selectedCourseInfo: { course: selectedCourse, date: selectedDate },
+    },
+    getAllCourses,
+  } = useContext(courseContext);
   const {
     studentState: { selectedStudent },
     getSelectedStudent,
@@ -61,12 +67,13 @@ function EnrolledStudentsTable({ course }) {
     removeStudentFromCourse,
     deselectStudent,
   } = useContext(studentContext);
+  const { getAttendance } = useContext(attendanceContext);
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [rows, setRows] = useState([]);
-  const { students, name: courseName } = course;
+  const { students, name: courseName, _id } = course;
 
   useEffect(() => {
     const studentList = students.map((student, index) => {
@@ -98,18 +105,24 @@ function EnrolledStudentsTable({ course }) {
       const { student } = selectedStudent;
       res = await removeStudentFromCourse({
         studentId: student._id,
-        courseId: course._id,
+        courseId: _id,
       });
     } else if (type === "all") {
       const studentIds = rows.map((row) => row._id);
       res = await removeMultipleStudentsFromCourse({
         studentIds,
-        courseId: course._id,
+        courseId: _id,
       });
     }
     console.log(res);
     if (res.success) {
       await getAllCourses();
+      if (selectedCourse && selectedDate && selectedCourse._id === _id) {
+        await getAttendance({
+          courseId: selectedCourse._id,
+          date: selectedDate,
+        });
+      }
       toast.success(res.message, {
         theme: "colored",
         autoClose: 2000,
@@ -134,7 +147,6 @@ function EnrolledStudentsTable({ course }) {
         renderHeader: () => (
           <div className="d-flex align-items-center">
             <NumbersIcon fontSize="small" />
-            <span className="ms-1">No.</span>
           </div>
         ),
       },
@@ -233,8 +245,8 @@ function EnrolledStudentsTable({ course }) {
           components={{ Toolbar: StudentsTableToolbar }}
           componentsProps={{
             toolbar: {
-              rows,
               handleRemoveStudent,
+              course,
             },
           }}
         />
@@ -247,7 +259,7 @@ function EnrolledStudentsTable({ course }) {
           deselectStudent();
         }}
         onDelete={() => {
-          // handleRemoveStudent("single");
+          handleRemoveStudent("single");
           setShowConfirmDeleteModal(false);
         }}
         onCancel={() => {

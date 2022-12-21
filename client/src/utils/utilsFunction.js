@@ -1,13 +1,22 @@
-export const convertDateFormat = (date) => {
-  //convert from yyyy-mm-dd to dd/mm/yyyy
-  const dateArr = date.split("-");
-  return `${dateArr[2]}/${dateArr[1]}/${dateArr[0]}`;
+export const convertDateFormat = (date, type) => {
+  if (type === "dd/mm/yyyy") {
+    if (!date.includes("-")) return date;
+    //convert from yyyy-mm-dd to dd/mm/yyyy
+    const dateArr = date.split("-");
+    return `${dateArr[2]}/${dateArr[1]}/${dateArr[0]}`;
+  } else if (type === "yyyy-mm-dd") {
+    if (!date.includes("/")) return date;
+    //convert from dd/mm/yyyy to yyyy-mm-dd
+    const dateArr = date.split("/");
+    return `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
+  } else {
+    console.log("invalid date format");
+  }
 };
 
 export const getDayOfWeek = (date) => {
   //convert from dd/mm/yyyy to yyyy-mm-dd
-  const dateArr = date.split("/");
-  const newDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
+  const newDate = convertDateFormat(date, "yyyy-mm-dd");
   const dayOfWeek = new Date(newDate).getDay();
   return isNaN(dayOfWeek)
     ? null

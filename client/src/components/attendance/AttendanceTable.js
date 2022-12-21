@@ -1,26 +1,19 @@
-import { useState, useCallback, useMemo, useContext, useEffect } from "react";
+import { useState, useMemo, useContext, useEffect } from "react";
 import { alpha, styled } from "@mui/material/styles";
-import { DataGrid, GridActionsCellItem, gridClasses } from "@mui/x-data-grid";
+import { DataGrid, gridClasses } from "@mui/x-data-grid";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import Badge from "react-bootstrap/Badge";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
 import AttendanceTableToolbar from "./AttendanceTableToolbar";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { courseContext } from "../../contexts/CourseContext";
-import { studentContext } from "../../contexts/StudentContext";
-import { toast } from "react-toastify";
-import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
 
 import NumbersIcon from "@mui/icons-material/Numbers";
-import DeleteIcon from "@mui/icons-material/Delete";
 import HelpIcon from "@mui/icons-material/Help";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
+import GroupIcon from "@mui/icons-material/Group";
 
 const ODD_OPACITY = 0.2;
 
@@ -72,7 +65,6 @@ function AttendanceTable() {
   // console.log("rerender");
   const {
     attendanceState: { attendance },
-    getAttendance,
     createAttendance,
     updateAttendance,
   } = useContext(attendanceContext);
@@ -84,19 +76,9 @@ function AttendanceTable() {
 
   const { course, date } = selectedCourseInfo;
 
-  const {
-    getSelectedStudent,
-    studentState: { selectedStudent },
-    removeStudentFromCourse,
-    removeMultipleStudentsFromCourse,
-    deselectStudent,
-  } = useContext(studentContext);
-
-  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [pageSize, setPageSize] = useState(10);
   const [rows, setRows] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (attendance && course && date) {
@@ -141,53 +123,6 @@ function AttendanceTable() {
     }
   }, [attendance, course, date]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const onDeleteStudent = useCallback((id) => {
-    setRows((prevRows) => {
-      getSelectedStudent({
-        student: prevRows.find((row) => row.id === id),
-      });
-      return prevRows;
-    });
-    setShowConfirmDeleteModal(true);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleRemoveStudent = async (type) => {
-    setIsDeleting(true);
-    let res = null;
-    if (type === "single") {
-      const { student } = selectedStudent;
-      res = await removeStudentFromCourse({
-        studentId: student._id,
-        courseId: course._id,
-      });
-    } else if (type === "all") {
-      const studentIds = rows.map((row) => row._id);
-      res = await removeMultipleStudentsFromCourse({
-        studentIds,
-        courseId: course._id,
-      });
-    }
-    console.log(res);
-    if (res.success) {
-      await getAllCourses();
-      await getAttendance({
-        courseId: course._id,
-        date,
-      });
-      toast.success(res.message, {
-        theme: "colored",
-        autoClose: 2000,
-      });
-    } else {
-      toast.error(res.message, {
-        theme: "colored",
-        autoClose: 2000,
-      });
-    }
-    // setShowConfirmDeleteModal(false); //FIX when pass to custom toolbar
-    setIsDeleting(false);
-  };
-
   const columns = useMemo(
     () => [
       {
@@ -198,7 +133,6 @@ function AttendanceTable() {
         renderHeader: () => (
           <div className="d-flex align-items-center">
             <NumbersIcon fontSize="small" />
-            <span className="ms-1">No.</span>
           </div>
         ),
       },
@@ -249,7 +183,7 @@ function AttendanceTable() {
       },
       {
         field: "name",
-        width: 300,
+        width: 320,
         headerAlign: "center",
         align: "center",
         renderHeader: () => (
@@ -262,7 +196,7 @@ function AttendanceTable() {
       {
         field: "course",
         sortable: false,
-        width: 230,
+        flex: 1,
         headerAlign: "center",
         align: "center",
         getApplyQuickFilterFn: undefined,
@@ -275,7 +209,7 @@ function AttendanceTable() {
       },
       {
         field: "date",
-        width: 130,
+        width: 150,
         sortable: false,
         headerAlign: "center",
         align: "center",
@@ -295,32 +229,13 @@ function AttendanceTable() {
         align: "center",
         renderHeader: () => (
           <div className="d-flex align-items-center">
-            <CheckCircleOutlinedIcon fontSize="small" />
-            <span className="ms-1">Attendance</span>
+            <GroupIcon fontSize="small" />
+            <span className="ms-1">Presence</span>
           </div>
         ),
-      },
-      {
-        field: "actions",
-        type: "actions",
-        flex: 1,
-        sortable: false,
-        renderHeader: () => (
-          <div className="d-flex align-items-center">
-            <BorderColorOutlinedIcon fontSize="small" />
-            <span className="ms-1">Actions</span>
-          </div>
-        ),
-        getActions: (params) => [
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={() => onDeleteStudent(params.id)}
-          />,
-        ],
       },
     ],
-    [onDeleteStudent]
+    []
   );
 
   return (
@@ -362,7 +277,6 @@ function AttendanceTable() {
                 date,
               },
               getAllCourses,
-              handleRemoveStudent,
             },
           }}
           selectionModel={selectionModel}
@@ -380,45 +294,6 @@ function AttendanceTable() {
         {/* custom styles */}
         <GlobalStyles styles={{ p: { marginTop: "auto" } }} />
       </div>
-      <ConfirmDeleteModal
-        showConfirmDeleteModal={showConfirmDeleteModal}
-        onHide={() => {
-          setShowConfirmDeleteModal(false);
-          deselectStudent();
-        }}
-        onDelete={() => {
-          handleRemoveStudent("single");
-          setShowConfirmDeleteModal(false);
-        }}
-        onCancel={() => {
-          setShowConfirmDeleteModal(false);
-          deselectStudent();
-        }}
-        message={{
-          body: selectedStudent ? (
-            <>
-              Remove student:{" "}
-              <strong>
-                {selectedStudent.student.studentId}{" "}
-                {selectedStudent.student.name}{" "}
-              </strong>
-              from this course?
-            </>
-          ) : (
-            "Removing..."
-          ),
-        }}
-      />
-      <Backdrop
-        sx={{
-          color: "#fff",
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: "rgb(0 0 0 / 30%);",
-        }}
-        open={isDeleting}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
     </>
   );
 }

@@ -76,7 +76,7 @@ function CourseInfo({ course }) {
   };
 
   return (
-    <Card border="0" className="mt-3 p-2">
+    <Card border="0" className="mt-3 p-2 shadow-sm">
       <Form onSubmit={handleEditCourse}>
         <Card.Body>
           <Form.Group>

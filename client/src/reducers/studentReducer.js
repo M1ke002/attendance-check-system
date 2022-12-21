@@ -11,12 +11,12 @@ const studentReducer = (state, action) => {
   const { students, studentInfo } = payload;
 
   switch (type) {
-    case STUDENTS_LOADED_SUCCESS:
+    case STUDENTS_LOADED_SUCCESS: //optional
       return {
         ...state,
         students,
       };
-    case STUDENTS_LOADED_FAILED:
+    case STUDENTS_LOADED_FAILED: //optional
       return {
         ...state,
         students: [],

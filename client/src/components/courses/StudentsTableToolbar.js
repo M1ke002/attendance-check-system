@@ -11,6 +11,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import GroupRemoveIcon from "@mui/icons-material/GroupRemove";
 
 function StudentsTableToolbar(props) {
+  const { handleRemoveStudent, course } = props;
   const [showEnrollStudentModal, setShowEnrollStudentModal] = useState(false);
   const [showUploadFileModal, setShowUploadFileModal] = useState(false);
   const [
@@ -49,9 +50,11 @@ function StudentsTableToolbar(props) {
           <GridToolbarQuickFilter />
         </div>
       </GridToolbarContainer>
-      <UploadFileModal data={{ setShowUploadFileModal, showUploadFileModal }} />
+      <UploadFileModal
+        data={{ setShowUploadFileModal, showUploadFileModal, course }}
+      />
       <EnrollStudentModal
-        data={{ setShowEnrollStudentModal, showEnrollStudentModal }}
+        data={{ setShowEnrollStudentModal, showEnrollStudentModal, course }}
       />
       <ConfirmDeleteModal
         showConfirmDeleteModal={showConfirmDeleteAllStudentsModal}
@@ -59,7 +62,7 @@ function StudentsTableToolbar(props) {
           setShowConfirmDeleteAllStudentsModal(false);
         }}
         onDelete={() => {
-          // handleRemoveStudent("all");
+          handleRemoveStudent("all");
           setShowConfirmDeleteAllStudentsModal(false);
         }}
         onCancel={() => {

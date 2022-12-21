@@ -1,34 +1,14 @@
 import { GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import SaveIcon from "@mui/icons-material/Save";
-import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import GroupRemoveIcon from "@mui/icons-material/GroupRemove";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import { toast } from "react-toastify";
 
 import { useState } from "react";
 
-import UploadFileModal from "../layout/Modal/UploadFileModal";
-import EnrollStudentModal from "../layout/Modal/EnrollStudentModal";
-import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
-
 function AttendanceTableToolbar(props) {
-  const [showEnrollStudentModal, setShowEnrollStudentModal] = useState(false);
-  const [showUploadFileModal, setShowUploadFileModal] = useState(false);
-  const [
-    showConfirmDeleteAllStudentsModal,
-    setShowConfirmDeleteAllStudentsModal,
-  ] = useState(false);
-
   const [isSavingData, setIsSavingData] = useState(false);
-  const {
-    selectionModel,
-    rows,
-    attendanceData,
-    getAllCourses,
-    handleRemoveStudent,
-  } = props;
+  const { selectionModel, rows, attendanceData, getAllCourses } = props;
 
   const { attendance, createAttendance, updateAttendance, course, date } =
     attendanceData;
@@ -47,6 +27,13 @@ function AttendanceTableToolbar(props) {
 
   const saveData = async () => {
     if (!checkCourseSelected()) return;
+    if (course.students.length === 0) {
+      toast.error("course has no students!", {
+        theme: "colored",
+        autoClose: 2000,
+      });
+      return;
+    }
     const records = rows.map((row) => {
       const present = selectionModel.includes(row.id);
       return {
@@ -110,7 +97,7 @@ function AttendanceTableToolbar(props) {
                 className="me-1"
               />
             ) : (
-              <SaveIcon /> //TODO: disable btn if course has no students?
+              <SaveIcon />
             )}
             <span className="ms-1">{isSavingData ? "Saving..." : "Save"}</span>
           </Button>
@@ -118,61 +105,8 @@ function AttendanceTableToolbar(props) {
             Generate QR
           </Button>
         </div>
-        <div>
-          <Button
-            variant="success"
-            className="me-2 d-inline-flex justify-content-center w-2"
-            style={{ width: "50px" }}
-            onClick={() => {
-              if (checkCourseSelected()) setShowUploadFileModal(true);
-            }}
-          >
-            <UploadFileIcon fontSize="small" />
-          </Button>
-          <Button
-            variant="danger"
-            className="me-2 d-inline-flex justify-content-center w-2"
-            style={{ width: "50px" }}
-            onClick={() => {
-              if (checkCourseSelected())
-                setShowConfirmDeleteAllStudentsModal(true);
-            }}
-          >
-            <GroupRemoveIcon fontSize="small" />
-          </Button>
-          <Button
-            variant="info"
-            className="me-4 d-inline-flex justify-content-center w-2"
-            style={{ width: "50px" }}
-            onClick={() => {
-              if (checkCourseSelected()) setShowEnrollStudentModal(true);
-            }}
-          >
-            <PersonAddAlt1Icon fontSize="small" />
-          </Button>
-          <GridToolbarQuickFilter />
-        </div>
+        <GridToolbarQuickFilter />
       </GridToolbarContainer>
-      <UploadFileModal data={{ setShowUploadFileModal, showUploadFileModal }} />
-      <EnrollStudentModal
-        data={{ setShowEnrollStudentModal, showEnrollStudentModal }}
-      />
-      <ConfirmDeleteModal
-        showConfirmDeleteModal={showConfirmDeleteAllStudentsModal}
-        onHide={() => {
-          setShowConfirmDeleteAllStudentsModal(false);
-        }}
-        onDelete={() => {
-          handleRemoveStudent("all");
-          setShowConfirmDeleteAllStudentsModal(false);
-        }}
-        onCancel={() => {
-          setShowConfirmDeleteAllStudentsModal(false);
-        }}
-        message={{
-          body: "Remove all students from this course?",
-        }}
-      />
     </>
   );
 }

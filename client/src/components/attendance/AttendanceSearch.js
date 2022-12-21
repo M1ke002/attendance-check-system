@@ -9,14 +9,14 @@ import { attendanceContext } from "../../contexts/AttendanceContext";
 import { convertDateFormat } from "../../utils/utilsFunction";
 
 const getDisplayedCourses = (courses) => {
-  const displayCourses = courses.map((course) => {
+  const displayedCourses = courses.map((course) => {
     return {
       ...course,
       value: course._id,
       label: `${course.name} - ${course.year}`,
     };
   });
-  return displayCourses;
+  return displayedCourses;
 };
 
 function AttendanceSearch() {
@@ -99,7 +99,7 @@ function AttendanceSearch() {
               dateField:
                 e.target.value === ""
                   ? null
-                  : convertDateFormat(e.target.value),
+                  : convertDateFormat(e.target.value, "dd/mm/yyyy"),
             });
           }}
         />

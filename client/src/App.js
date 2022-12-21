@@ -6,6 +6,8 @@ import Auth from "./pages/Auth";
 import Attendance from "./pages/Attendance";
 import Courses from "./pages/Courses";
 import CoursePage from "./pages/CoursePage";
+import Profile from "./pages/Profile";
+import Students from "./pages/Students";
 import AuthContextProvider from "./contexts/AuthContext";
 import AttendanceContextProvider from "./contexts/AttendanceContext";
 import CourseContextProvider from "./contexts/CourseContext";
@@ -20,10 +22,10 @@ import Test from "./utils/test";
 function App() {
   return (
     <>
-      <CourseContextProvider>
-        <AttendanceContextProvider>
-          <StudentContextProvider>
-            <AuthContextProvider>
+      <AuthContextProvider>
+        <CourseContextProvider>
+          <AttendanceContextProvider>
+            <StudentContextProvider>
               <Router>
                 <Routes>
                   <Route exact path="/" element={<Landing />} />
@@ -45,14 +47,16 @@ function App() {
                       path="/courses/:courseId"
                       element={<CoursePage />}
                     />
+                    <Route exact path="/profile" element={<Profile />} />
+                    <Route exact path="/students" element={<Students />} />
                     <Route exact path="/test" element={<Test />} />
                   </Route>
                 </Routes>
               </Router>
-            </AuthContextProvider>
-          </StudentContextProvider>
-        </AttendanceContextProvider>
-      </CourseContextProvider>
+            </StudentContextProvider>
+          </AttendanceContextProvider>
+        </CourseContextProvider>
+      </AuthContextProvider>
       <ToastContainer />
     </>
   );
