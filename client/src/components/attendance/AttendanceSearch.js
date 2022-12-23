@@ -1,6 +1,6 @@
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Select from "react-select/";
+import Select from "react-select";
 import { toast } from "react-toastify";
 
 import { useContext, useState } from "react";

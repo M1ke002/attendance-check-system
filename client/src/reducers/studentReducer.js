@@ -1,26 +1,21 @@
 import {
-  STUDENTS_LOADED_SUCCESS,
-  STUDENTS_LOADED_FAILED,
+  UPDATE_STUDENT,
+  DELETE_STUDENT,
   SELECT_STUDENT,
   DESELECT_STUDENT,
+  SET_FOUND_STUDENTS,
   REMOVE_STUDENT_FROM_COURSE,
 } from "./constants";
 
 const studentReducer = (state, action) => {
   const { type, payload } = action;
-  const { students, studentInfo } = payload;
+  const { foundStudents, studentInfo } = payload;
 
   switch (type) {
-    case STUDENTS_LOADED_SUCCESS: //optional
+    case SET_FOUND_STUDENTS:
       return {
         ...state,
-        students,
-      };
-    case STUDENTS_LOADED_FAILED: //optional
-      return {
-        ...state,
-        students: [],
-        selectedStudent: null,
+        foundStudents,
       };
     case SELECT_STUDENT:
       return {
@@ -38,6 +33,17 @@ const studentReducer = (state, action) => {
       return {
         ...state,
         selectedStudent: null,
+      };
+    case DELETE_STUDENT:
+      return {
+        ...state,
+        foundStudents,
+        selectedStudent: null,
+      };
+    case UPDATE_STUDENT:
+      return {
+        ...state,
+        foundStudents,
       };
     default:
       return state;

@@ -10,7 +10,7 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import GroupRemoveIcon from "@mui/icons-material/GroupRemove";
 
-function StudentsTableToolbar(props) {
+function EnrolledStudentsTableToolbar(props) {
   const { handleRemoveStudent, course } = props;
   const [showEnrollStudentModal, setShowEnrollStudentModal] = useState(false);
   const [showUploadFileModal, setShowUploadFileModal] = useState(false);
@@ -76,4 +76,4 @@ function StudentsTableToolbar(props) {
   );
 }
 
-export default StudentsTableToolbar;
+export default EnrolledStudentsTableToolbar;

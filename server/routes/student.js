@@ -344,7 +344,7 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
-//@route PUT /api/students
+//@route PUT /api/students/:id
 //@desc update student info
 //@accessability private
 router.put("/:id", verifyToken, async (req, res) => {
@@ -385,7 +385,7 @@ router.put("/:id", verifyToken, async (req, res) => {
   }
 });
 
-//@route DELETE /api/students
+//@route DELETE /api/students/:id
 //@desc delete student
 //@accessability private
 router.delete("/:id", verifyToken, async (req, res) => {

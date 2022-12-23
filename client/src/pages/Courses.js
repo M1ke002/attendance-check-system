@@ -1,12 +1,12 @@
 import Container from "react-bootstrap/Container";
 
-import CourseTable from "../components/courses/CourseTable";
+import CoursesTable from "../components/courses/CoursesTable";
 
 function Courses() {
   return (
     <>
       <Container className="page-bg">
-        <CourseTable />
+        <CoursesTable />
       </Container>
     </>
   );

@@ -13,8 +13,8 @@ function CoursesTableToolbar() {
         <div>
           <Button
             variant="success"
-            className="me-3 d-inline-flex justify-content-center w-2"
-            style={{ width: "56px" }}
+            className="me-4 d-inline-flex justify-content-center w-2"
+            style={{ width: "50px" }}
             onClick={() => setShowAddCourseModal(true)}
           >
             <PostAddIcon fontSize="small" />

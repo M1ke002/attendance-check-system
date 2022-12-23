@@ -138,6 +138,7 @@ function AttendanceTable() {
       },
       {
         field: "_id",
+        getApplyQuickFilterFn: undefined,
       },
       {
         field: "status",

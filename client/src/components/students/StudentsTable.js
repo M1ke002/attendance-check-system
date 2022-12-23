@@ -1,13 +1,15 @@
-import { useState, useEffect, useContext, useCallback, useMemo } from "react";
+import { DataGrid, gridClasses } from "@mui/x-data-grid";
 import { alpha, styled } from "@mui/material/styles";
-import { DataGrid, GridActionsCellItem, gridClasses } from "@mui/x-data-grid";
 import GlobalStyles from "@mui/material/GlobalStyles";
-import EnrolledStudentsTableToolbar from "./EnrolledStudentsTableToolbar";
-import { attendanceContext } from "../../contexts/AttendanceContext";
+import { useState, useContext, useMemo, useCallback } from "react";
 import { studentContext } from "../../contexts/StudentContext";
 import { courseContext } from "../../contexts/CourseContext";
-import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
+import { attendanceContext } from "../../contexts/AttendanceContext";
 import { toast } from "react-toastify";
+import StudentsTableToolbar from "./StudentsTableToolbar";
+import Button from "react-bootstrap/Button";
+import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
+import StudentInfoModal from "../layout/Modal/StudentInfoModal";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -18,11 +20,11 @@ import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 
-const ODD_OPACITY = 0.2;
+const ODD_OPACITY = 0.3;
 
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
   [`& .${gridClasses.row}.even`]: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.grey[100],
     "&:hover, &.Mui-hovered": {
       backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
       "@media (hover: none)": {
@@ -50,79 +52,86 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
         },
       },
     },
+    cursor: "pointer",
+  },
+  [`& .${gridClasses.row}.odd`]: {
+    cursor: "pointer",
   },
 }));
 
-function EnrolledStudentsTable({ course }) {
+function StudentTables() {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [showStudentInfoModal, setShowStudentInfoModal] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [rows, setRows] = useState([]);
+
+  const { getAttendance } = useContext(attendanceContext);
   const {
-    courseState: {
-      selectedCourseInfo: { course: selectedCourse, date: selectedDate },
-    },
     getAllCourses,
+    courseState: { selectedCourseInfo },
   } = useContext(courseContext);
+  const { course: selectedCourse, date } = selectedCourseInfo;
   const {
     studentState: { selectedStudent },
     getSelectedStudent,
-    removeMultipleStudentsFromCourse,
-    removeStudentFromCourse,
     deselectStudent,
+    deleteStudent,
   } = useContext(studentContext);
-  const { getAttendance } = useContext(attendanceContext);
 
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
-  const [pageSize, setPageSize] = useState(10);
-  const [rows, setRows] = useState([]);
-  const { students, name: courseName, _id } = course;
-
-  useEffect(() => {
-    const studentList = students.map((student, index) => {
-      return {
-        id: index + 1,
-        _id: student._id,
-        studentId: student.studentId,
-        name: student.name,
-        course: courseName,
-      };
+  const onRowDoubleClick = (row) => {
+    getSelectedStudent({
+      student: row,
     });
-    setRows(studentList);
-  }, [students.length]);
+    setShowStudentInfoModal(true);
+  };
 
-  const onDeleteStudent = useCallback((id) => {
-    setRows((prevRows) => {
-      getSelectedStudent({
-        student: prevRows.find((row) => row.id === id),
-      });
-      return prevRows;
-    });
-    setShowConfirmDeleteModal(true);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleRemoveStudent = async (type) => {
-    setIsDeleting(true);
-    let res = null;
-    if (type === "single") {
-      const { student } = selectedStudent;
-      res = await removeStudentFromCourse({
-        studentId: student._id,
-        courseId: _id,
-      });
-    } else if (type === "all") {
-      const studentIds = rows.map((row) => row._id);
-      res = await removeMultipleStudentsFromCourse({
-        studentIds,
-        courseId: _id,
-      });
-    }
-    console.log(res);
-    if (res.success) {
-      await getAllCourses();
-      if (selectedCourse && selectedDate && selectedCourse._id === _id) {
-        await getAttendance({
-          courseId: selectedCourse._id,
-          date: selectedDate,
+  const onViewStudentInfo = useCallback(
+    (id) => {
+      setRows((prevRows) => {
+        getSelectedStudent({
+          student: prevRows.find((row) => row.id === id),
         });
+        return prevRows;
+      });
+      setShowStudentInfoModal(true);
+    },
+    [getSelectedStudent]
+  );
+
+  const onDeleteStudent = useCallback(
+    (id) => {
+      setRows((prevRows) => {
+        getSelectedStudent({
+          student: prevRows.find((row) => row.id === id),
+        });
+        return prevRows;
+      });
+      setShowConfirmDeleteModal(true);
+    },
+    [getSelectedStudent]
+  );
+
+  const handleDeleteStudent = async () => {
+    setIsDeleting(true);
+    const { student } = selectedStudent;
+    const res = await deleteStudent(student._id);
+    if (res.success) {
+      //if student enrolled in course(s) -> get all courses
+      if (student.courseIds.length > 0) {
+        await getAllCourses();
+        //if there is selected course and date and the selected course is in the list of courses student enrolled in -> get attendance
+        if (
+          selectedCourse &&
+          date &&
+          student.courseIds.find((courseId) => courseId === selectedCourse._id)
+        )
+          await getAttendance({
+            courseId: selectedCourse._id,
+            date,
+          });
       }
+      console.log("deleted student");
       toast.success(res.message, {
         theme: "colored",
         autoClose: 2000,
@@ -133,7 +142,6 @@ function EnrolledStudentsTable({ course }) {
         autoClose: 2000,
       });
     }
-    // setShowConfirmDeleteModal(false); //FIX when pass to custom toolbar
     setIsDeleting(false);
   };
 
@@ -141,7 +149,7 @@ function EnrolledStudentsTable({ course }) {
     () => [
       {
         field: "id",
-        width: 120,
+        width: 80,
         headerAlign: "center",
         align: "center",
         renderHeader: () => (
@@ -152,7 +160,9 @@ function EnrolledStudentsTable({ course }) {
       },
       {
         field: "_id",
-        getApplyQuickFilterFn: undefined,
+      },
+      {
+        field: "courseIds",
       },
       {
         field: "studentId",
@@ -179,7 +189,7 @@ function EnrolledStudentsTable({ course }) {
         ),
       },
       {
-        field: "course",
+        field: "totalCourses",
         sortable: false,
         width: 400,
         headerAlign: "center",
@@ -188,66 +198,71 @@ function EnrolledStudentsTable({ course }) {
         renderHeader: () => (
           <div className="d-flex align-items-center">
             <LibraryBooksOutlinedIcon fontSize="small" />
-            <span className="ms-1">Course</span>
+            <span className="ms-1">Enrolled courses</span>
           </div>
         ),
       },
       {
         field: "actions",
-        width: 140,
-        type: "actions",
+        width: 160,
         sortable: false,
+        headerAlign: "center",
+        align: "center",
         renderHeader: () => (
           <div className="d-flex align-items-center">
             <BorderColorOutlinedIcon fontSize="small" />
             <span className="ms-1">Actions</span>
           </div>
         ),
-        getActions: (params) => [
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={() => onDeleteStudent(params.id)}
-          />,
-        ],
+        renderCell: (params) => {
+          return (
+            <>
+              <Button
+                className="btn-sm me-2"
+                variant="info"
+                onClick={() => onViewStudentInfo(params.id)}
+              >
+                View
+              </Button>
+              <Button
+                className="btn-sm"
+                variant="danger"
+                onClick={() => onDeleteStudent(params.id)}
+              >
+                <DeleteIcon fontSize="small" />
+              </Button>
+            </>
+          );
+        },
       },
     ],
-    [onDeleteStudent]
+    [onDeleteStudent, onViewStudentInfo]
   );
 
   return (
     <>
-      <h4 className="text-center" style={{ marginTop: "25px" }}>
-        Enrolled students
-      </h4>
-      <hr style={{ opacity: 0.15 }} />
-      <div style={{ height: rows.length === 0 ? 460 : 500, width: "100%" }}>
+      <StudentsTableToolbar data={{ setRows }} />
+      <div style={{ height: rows.length === 0 ? 340 : 370, width: "100%" }}>
         <StripedDataGrid
           rows={rows}
           columns={columns}
+          disableColumnMenu={true}
+          disableSelectionOnClick
           getRowClassName={(params) =>
             params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
           }
-          disableColumnMenu={true}
-          disableSelectionOnClick
           pageSize={pageSize}
           onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
           rowsPerPageOptions={[10, 50, 100]}
+          onRowDoubleClick={(params) => onRowDoubleClick(params.row)}
           pagination
-          sx={{ border: 0 }}
+          localeText={{ noRowsLabel: "No students found" }}
           initialState={{
             columns: {
               columnVisibilityModel: {
                 _id: false,
+                courseIds: false,
               },
-            },
-          }}
-          localeText={{ noRowsLabel: "No students found" }}
-          components={{ Toolbar: EnrolledStudentsTableToolbar }}
-          componentsProps={{
-            toolbar: {
-              handleRemoveStudent,
-              course,
             },
           }}
         />
@@ -257,29 +272,35 @@ function EnrolledStudentsTable({ course }) {
         showConfirmDeleteModal={showConfirmDeleteModal}
         onHide={() => {
           setShowConfirmDeleteModal(false);
-          deselectStudent();
+          deselectStudent(null);
         }}
         onDelete={() => {
-          handleRemoveStudent("single");
+          handleDeleteStudent();
           setShowConfirmDeleteModal(false);
         }}
         onCancel={() => {
           setShowConfirmDeleteModal(false);
-          deselectStudent();
+          deselectStudent(null);
         }}
         message={{
           body: selectedStudent ? (
             <>
-              Remove student:{" "}
+              Delete student:{" "}
               <strong>
                 {selectedStudent.student.studentId}{" "}
                 {selectedStudent.student.name}{" "}
               </strong>
-              from this course?
             </>
           ) : (
-            "Removing..."
+            "Deleting..." //TODO: bug when hide shows this msg
           ),
+        }}
+      />
+      <StudentInfoModal
+        data={{
+          setShowStudentInfoModal,
+          showStudentInfoModal,
+          student: selectedStudent?.student,
         }}
       />
       <Backdrop
@@ -296,4 +317,4 @@ function EnrolledStudentsTable({ course }) {
   );
 }
 
-export default EnrolledStudentsTable;
+export default StudentTables;

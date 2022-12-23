@@ -4,8 +4,11 @@ import studentReducer from "../reducers/studentReducer";
 import axios from "axios";
 
 import {
+  UPDATE_STUDENT,
+  DELETE_STUDENT,
   SELECT_STUDENT,
   DESELECT_STUDENT,
+  SET_FOUND_STUDENTS,
   REMOVE_STUDENT_FROM_COURSE,
 } from "../reducers/constants";
 
@@ -13,7 +16,7 @@ export const studentContext = createContext();
 
 function StudentContext({ children }) {
   const [studentState, dispatch] = useReducer(studentReducer, {
-    students: [], //TODO: search student directly from db, DONE
+    foundStudents: [],
     selectedStudent: null,
   });
 
@@ -43,6 +46,69 @@ function StudentContext({ children }) {
   //   };
   //   getAllStudents();
   // }, []);
+
+  const addStudent = async (studentInfo) => {
+    try {
+      const res = await axios.post(`${apiUrl}/students`, studentInfo);
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const deleteStudent = async (studentId) => {
+    try {
+      const res = await axios.delete(`${apiUrl}/students/${studentId}`);
+      if (res.data.success) {
+        const updatedStudents = studentState.foundStudents.filter(
+          (student) => student._id !== studentId
+        );
+        dispatch({
+          type: DELETE_STUDENT,
+          payload: {
+            foundStudents: updatedStudents,
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const updateStudent = async (studentInfo) => {
+    try {
+      const res = await axios.put(
+        `${apiUrl}/students/${studentInfo._id}`,
+        studentInfo
+      );
+      if (res.data.success) {
+        const updatedStudents = studentState.foundStudents.map((student) => {
+          if (student._id !== res.data.student._id) {
+            return student;
+          } else {
+            return {
+              ...student,
+              name: res.data.student.name,
+              studentId: res.data.student.studentId,
+            };
+          }
+        });
+        dispatch({
+          type: UPDATE_STUDENT,
+          payload: {
+            foundStudents: updatedStudents,
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
 
   const enrollStudentForCourse = async (enrollInfo) => {
     try {
@@ -124,6 +190,15 @@ function StudentContext({ children }) {
     }
   };
 
+  const setFoundStudents = (students) => {
+    dispatch({
+      type: SET_FOUND_STUDENTS,
+      payload: {
+        foundStudents: students,
+      },
+    });
+  };
+
   const studentData = {
     getSelectedStudent,
     deselectStudent,
@@ -132,6 +207,10 @@ function StudentContext({ children }) {
     removeStudentFromCourse,
     removeMultipleStudentsFromCourse,
     findStudents,
+    addStudent,
+    deleteStudent,
+    updateStudent,
+    setFoundStudents,
     studentState,
   };
 

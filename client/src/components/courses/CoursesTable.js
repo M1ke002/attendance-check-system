@@ -165,6 +165,7 @@ function CourseTable() {
     },
     {
       field: "_id",
+      getApplyQuickFilterFn: undefined,
     },
     {
       field: "name",

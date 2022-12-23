@@ -15,9 +15,6 @@ import { authContext } from "./AuthContext";
 export const courseContext = createContext();
 
 function CourseContext({ children }) {
-  const {
-    authState: { isAuthenticated },
-  } = useContext(authContext);
   const [courseState, dispatch] = useReducer(courseReducer, {
     courses: [],
     selectedCourseInfo: {
@@ -26,6 +23,10 @@ function CourseContext({ children }) {
     },
     isCourseLoading: true,
   });
+
+  const {
+    authState: { isAuthenticated },
+  } = useContext(authContext);
 
   useEffect(() => {
     if (!isAuthenticated) return;

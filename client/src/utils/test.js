@@ -1,51 +1,61 @@
-import Container from "react-bootstrap/Container";
-import Tabs from "react-bootstrap/Tabs";
-import Tab from "react-bootstrap/Tab";
+import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import CourseDetails from "../components/courses/CourseDetails";
-import EnrolledStudentsTable from "../components/courses/EnrolledStudentsTable";
+import ListGroup from "react-bootstrap/ListGroup";
 
-function CourseDetail() {
-  const [key, setKey] = useState("details");
+function StudentInfoModal() {
   return (
-    <>
-      <Container>
-        <div
-          style={{
-            margin: "20px 0 10px 0",
-            fontWeight: "bold",
-          }}
-        >
-          <Link style={{ color: "black", marginRight: "5px" }} to="/courses">
-            Courses
-          </Link>
-          {">"} Machine learning
-        </div>
-        <Card
-          border="0"
-          className="d-flex justify-content-center"
-          style={{ height: "70px" }}
-        >
-          <Card.Body>
-            <Tabs variant="pills" activeKey={key} onSelect={(k) => setKey(k)}>
-              <Tab eventKey="details" title="Details" />
-              <Tab eventKey="students" title="Enrolled students" />
-              <Tab eventKey="attendance" title="Attendance records" />
-            </Tabs>
-          </Card.Body>
-        </Card>
-        {key === "details" ? (
-          <CourseDetails />
-        ) : key === "students" ? (
-          <EnrolledStudentsTable />
-        ) : (
-          "attendance"
-        )}
-      </Container>
-    </>
+    <Modal show={true} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Student Info</Modal.Title>
+      </Modal.Header>
+      <Form>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Name</Form.Label>
+            <Form.Control type="text" placeholder="Name" name="name" />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label className="mt-2">Student ID</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Student ID"
+              name="studentId"
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label className="mt-2">Enrolled courses</Form.Label>
+            <Card style={{ maxHeight: "100px", overflowY: "scroll" }}>
+              <ListGroup variant="flush">
+                <ListGroup.Item>
+                  <Card.Link href="/" className="link">
+                    Python programming - 2022
+                  </Card.Link>
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <Card.Link href="/" className="link">
+                    Object oriented programming - 2021
+                  </Card.Link>
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <Card.Link href="/" className="link">
+                    Cryptography - 2022
+                  </Card.Link>
+                </ListGroup.Item>
+              </ListGroup>
+            </Card>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="info" type="submit">
+            Edit
+          </Button>
+          <Button variant="danger">Cancel</Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
   );
 }
 
-export default CourseDetail;
+export default StudentInfoModal;
