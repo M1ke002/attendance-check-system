@@ -65,7 +65,6 @@ function EnrolledStudentsTable({ course }) {
     getSelectedStudent,
     removeMultipleStudentsFromCourse,
     removeStudentFromCourse,
-    deselectStudent,
   } = useContext(studentContext);
   const { getAttendance } = useContext(attendanceContext);
 
@@ -86,13 +85,11 @@ function EnrolledStudentsTable({ course }) {
       };
     });
     setRows(studentList);
-  }, [students.length]);
+  }, [students.length, courseName, students]);
 
   const onDeleteStudent = useCallback((id) => {
     setRows((prevRows) => {
-      getSelectedStudent({
-        student: prevRows.find((row) => row.id === id),
-      });
+      getSelectedStudent(prevRows.find((row) => row.id === id));
       return prevRows;
     });
     setShowConfirmDeleteModal(true);
@@ -102,9 +99,8 @@ function EnrolledStudentsTable({ course }) {
     setIsDeleting(true);
     let res = null;
     if (type === "single") {
-      const { student } = selectedStudent;
       res = await removeStudentFromCourse({
-        studentId: student._id,
+        studentId: selectedStudent._id,
         courseId: _id,
       });
     } else if (type === "all") {
@@ -257,7 +253,7 @@ function EnrolledStudentsTable({ course }) {
         showConfirmDeleteModal={showConfirmDeleteModal}
         onHide={() => {
           setShowConfirmDeleteModal(false);
-          deselectStudent();
+          // deselectStudent();
         }}
         onDelete={() => {
           handleRemoveStudent("single");
@@ -265,21 +261,21 @@ function EnrolledStudentsTable({ course }) {
         }}
         onCancel={() => {
           setShowConfirmDeleteModal(false);
-          deselectStudent();
+          // deselectStudent();
         }}
         message={{
           body: selectedStudent ? (
             <>
               Remove student:{" "}
               <strong>
-                {selectedStudent.student.studentId}{" "}
-                {selectedStudent.student.name}{" "}
+                {selectedStudent.studentId} {selectedStudent.name}{" "}
               </strong>
               from this course?
             </>
           ) : (
             "Removing..."
           ),
+          footer: "Remove",
         }}
       />
       <Backdrop

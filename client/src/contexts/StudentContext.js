@@ -7,7 +7,6 @@ import {
   UPDATE_STUDENT,
   DELETE_STUDENT,
   SELECT_STUDENT,
-  DESELECT_STUDENT,
   SET_FOUND_STUDENTS,
   REMOVE_STUDENT_FROM_COURSE,
 } from "../reducers/constants";
@@ -96,10 +95,16 @@ function StudentContext({ children }) {
             };
           }
         });
+        const updatedSelectedStudent = {
+          ...studentState.selectedStudent,
+          name: res.data.student.name,
+          studentId: res.data.student.studentId,
+        };
         dispatch({
           type: UPDATE_STUDENT,
           payload: {
             foundStudents: updatedStudents,
+            selectedStudent: updatedSelectedStudent,
           },
         });
       }
@@ -111,6 +116,7 @@ function StudentContext({ children }) {
   };
 
   const enrollStudentForCourse = async (enrollInfo) => {
+    //TODO: update found students?
     try {
       const res = await axios.post(`${apiUrl}/students/enroll`, enrollInfo);
       return res.data;
@@ -121,6 +127,7 @@ function StudentContext({ children }) {
   };
 
   const enrollMultipleStudentsForCourse = async (data, courseId) => {
+    //update found students?
     try {
       const res = await axios.post(`${apiUrl}/students/enroll-multiple`, {
         studentData: data,
@@ -134,6 +141,7 @@ function StudentContext({ children }) {
   };
 
   const removeStudentFromCourse = async (studentInfo) => {
+    //update found students?
     try {
       const res = await axios.put(
         `${apiUrl}/students/unenroll/${studentInfo.studentId}`,
@@ -153,6 +161,7 @@ function StudentContext({ children }) {
   };
 
   const removeMultipleStudentsFromCourse = async (data) => {
+    //update found students?
     try {
       const res = await axios.put(`${apiUrl}/students/unenroll-multiple`, data);
       return res.data;
@@ -168,13 +177,6 @@ function StudentContext({ children }) {
       payload: {
         studentInfo,
       },
-    });
-  };
-
-  const deselectStudent = () => {
-    dispatch({
-      type: DESELECT_STUDENT,
-      payload: {},
     });
   };
 
@@ -201,7 +203,6 @@ function StudentContext({ children }) {
 
   const studentData = {
     getSelectedStudent,
-    deselectStudent,
     enrollStudentForCourse,
     enrollMultipleStudentsForCourse,
     removeStudentFromCourse,

@@ -75,23 +75,18 @@ function StudentTables() {
   const {
     studentState: { selectedStudent },
     getSelectedStudent,
-    deselectStudent,
     deleteStudent,
   } = useContext(studentContext);
 
   const onRowDoubleClick = (row) => {
-    getSelectedStudent({
-      student: row,
-    });
+    getSelectedStudent(row);
     setShowStudentInfoModal(true);
   };
 
   const onViewStudentInfo = useCallback(
     (id) => {
       setRows((prevRows) => {
-        getSelectedStudent({
-          student: prevRows.find((row) => row.id === id),
-        });
+        getSelectedStudent(prevRows.find((row) => row.id === id));
         return prevRows;
       });
       setShowStudentInfoModal(true);
@@ -102,9 +97,7 @@ function StudentTables() {
   const onDeleteStudent = useCallback(
     (id) => {
       setRows((prevRows) => {
-        getSelectedStudent({
-          student: prevRows.find((row) => row.id === id),
-        });
+        getSelectedStudent(prevRows.find((row) => row.id === id));
         return prevRows;
       });
       setShowConfirmDeleteModal(true);
@@ -114,17 +107,18 @@ function StudentTables() {
 
   const handleDeleteStudent = async () => {
     setIsDeleting(true);
-    const { student } = selectedStudent;
-    const res = await deleteStudent(student._id);
+    const res = await deleteStudent(selectedStudent._id);
     if (res.success) {
       //if student enrolled in course(s) -> get all courses
-      if (student.courseIds.length > 0) {
+      if (selectedStudent.courseIds.length > 0) {
         await getAllCourses();
         //if there is selected course and date and the selected course is in the list of courses student enrolled in -> get attendance
         if (
           selectedCourse &&
           date &&
-          student.courseIds.find((courseId) => courseId === selectedCourse._id)
+          selectedStudent.courseIds.find(
+            (courseId) => courseId === selectedCourse._id
+          )
         )
           await getAttendance({
             courseId: selectedCourse._id,
@@ -272,7 +266,7 @@ function StudentTables() {
         showConfirmDeleteModal={showConfirmDeleteModal}
         onHide={() => {
           setShowConfirmDeleteModal(false);
-          deselectStudent(null);
+          // deselectStudent(null);
         }}
         onDelete={() => {
           handleDeleteStudent();
@@ -280,19 +274,18 @@ function StudentTables() {
         }}
         onCancel={() => {
           setShowConfirmDeleteModal(false);
-          deselectStudent(null);
+          // deselectStudent(null);
         }}
         message={{
           body: selectedStudent ? (
             <>
               Delete student:{" "}
               <strong>
-                {selectedStudent.student.studentId}{" "}
-                {selectedStudent.student.name}{" "}
+                {selectedStudent.studentId} {selectedStudent.name}{" "}
               </strong>
             </>
           ) : (
-            "Deleting..." //TODO: bug when hide shows this msg
+            "Deleting..."
           ),
         }}
       />
@@ -300,7 +293,6 @@ function StudentTables() {
         data={{
           setShowStudentInfoModal,
           showStudentInfoModal,
-          student: selectedStudent?.student,
         }}
       />
       <Backdrop

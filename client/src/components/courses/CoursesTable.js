@@ -287,7 +287,6 @@ function CourseTable() {
         showConfirmDeleteModal={showConfirmDeleteModal}
         onHide={() => {
           setShowConfirmDeleteModal(false);
-          setSelectedCourse(null);
         }}
         onDelete={() => {
           handleDeleteCourse();
@@ -295,7 +294,6 @@ function CourseTable() {
         }}
         onCancel={() => {
           setShowConfirmDeleteModal(false);
-          setSelectedCourse(null);
         }}
         message={{
           body: selectedCourse ? (

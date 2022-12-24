@@ -70,6 +70,7 @@ function EnrolledStudentsTableToolbar(props) {
         }}
         message={{
           body: "Remove all students from this course?",
+          footer: "Remove",
         }}
       />
     </>

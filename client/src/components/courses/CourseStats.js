@@ -117,6 +117,7 @@ function CourseStats({ course }) {
               <YAxis
                 domain={[0, students.length]}
                 allowDataOverflow={true}
+                allowDecimals={false}
                 label={{
                   value: "No. of students",
                   angle: -90,

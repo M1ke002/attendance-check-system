@@ -3,39 +3,49 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import ListGroup from "react-bootstrap/ListGroup";
-import { toast } from "react-toastify";
+import AlertMessage from "../AlertMessage";
+import { Link } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { courseContext } from "../../../contexts/CourseContext";
 import { studentContext } from "../../../contexts/StudentContext";
 import { attendanceContext } from "../../../contexts/AttendanceContext";
 
 function StudentInfoModal({ data }) {
-  const { setShowStudentInfoModal, showStudentInfoModal, student } = data;
-  const [isEditable, setIsEditable] = useState(false);
-  const [editBtnText, setEditBtnText] = useState("Edit");
-  const [isSaving, setIsSaving] = useState(false);
-  const [inputField, setInputField] = useState({
-    name: student?.name,
-    studentId: student?.studentId,
-  });
-  const { name, studentId } = inputField;
-  console.log(student);
+  const { setShowStudentInfoModal, showStudentInfoModal } = data;
 
   const {
     courseState: { courses, selectedCourseInfo },
     getAllCourses,
   } = useContext(courseContext);
   const { course: selectedCourse, date } = selectedCourseInfo;
-  const { deselectStudent, updateStudent } = useContext(studentContext);
+  const {
+    studentState: { selectedStudent },
+    updateStudent,
+  } = useContext(studentContext);
   const { getAttendance } = useContext(attendanceContext);
+
+  const [isEditable, setIsEditable] = useState(false);
+  const [editBtnText, setEditBtnText] = useState("Edit");
+  const [isSaving, setIsSaving] = useState(false);
+  const [alert, setAlert] = useState({
+    message: "",
+    show: false,
+    type: "",
+  });
+  const [inputField, setInputField] = useState({
+    name: selectedStudent?.name,
+    studentId: selectedStudent?.studentId,
+  });
+  const { name, studentId } = inputField;
+  // console.log(selectedStudent);
 
   //update input field state when selected student is changed
   useEffect(() => {
     setInputField({
-      name: student?.name,
-      studentId: student?.studentId,
+      name: selectedStudent?.name,
+      studentId: selectedStudent?.studentId,
     });
-  }, [student]);
+  }, [selectedStudent]);
 
   const getCoursesInfo = (courseIds, courses) => {
     if (!courseIds || !courses) return [];
@@ -53,8 +63,8 @@ function StudentInfoModal({ data }) {
 
   const onCancel = () => {
     setInputField({
-      name: student?.name,
-      studentId: student?.studentId,
+      name: selectedStudent?.name,
+      studentId: selectedStudent?.studentId,
     });
     setIsEditable(false);
     setEditBtnText("Edit");
@@ -64,13 +74,13 @@ function StudentInfoModal({ data }) {
     if (isSaving) return;
     setShowStudentInfoModal(false);
     setInputField({
-      name: student?.name,
-      studentId: student?.studentId,
+      name: selectedStudent?.name,
+      studentId: selectedStudent?.studentId,
     });
     setIsEditable(false);
     setEditBtnText("Edit");
-    deselectStudent(null);
-    // setTimeout(() => deselectStudent(null), 0);
+    setAlert({ ...alert, show: false });
+    // deselectStudent(null);
   };
 
   const handleEditStudentInfo = async (e) => {
@@ -83,9 +93,11 @@ function StudentInfoModal({ data }) {
     //validate input
     if (name.trim() === "" || studentId.trim() === "") {
       console.log("Can't leave empty field!");
-      toast.error("Can't leave empty field!", {
-        theme: "colored",
-        autoClose: 2000,
+      setAlert({
+        ...alert,
+        message: "Can't leave empty field",
+        show: true,
+        type: "light-danger",
       });
       return;
     }
@@ -93,19 +105,19 @@ function StudentInfoModal({ data }) {
     const res = await updateStudent({
       name,
       studentId,
-      _id: student?._id,
+      _id: selectedStudent?._id,
     });
     if (res.success) {
       //update foundStudents ->done by student context
       //if student enrolled in course(s) -> get all courses
       const updatedStudent = res.student;
-      if (updatedStudent.courseIds.length > 0) {
+      if (updatedStudent.enrolledCourses.length > 0) {
         await getAllCourses();
         //if there is selected course and date and that course is one of student's enrolled courses -> get attendance
         if (
           selectedCourse &&
           date &&
-          updatedStudent.courseIds.find(
+          updatedStudent.enrolledCourses.find(
             (courseId) => courseId === selectedCourse._id
           )
         )
@@ -115,14 +127,20 @@ function StudentInfoModal({ data }) {
           });
       }
       console.log("updated student");
-      toast.success(res.message, {
-        theme: "colored",
-        autoClose: 2000,
+      setAlert({
+        ...alert,
+        message: res.message,
+        show: true,
+        type: "light-success",
       });
+      setIsEditable(false);
+      setEditBtnText("Edit");
     } else {
-      toast.error(res.message, {
-        theme: "colored",
-        autoClose: 2000,
+      setAlert({
+        ...alert,
+        message: res.message,
+        show: true,
+        type: "light-danger",
       });
     }
     setIsSaving(false);
@@ -161,31 +179,37 @@ function StudentInfoModal({ data }) {
             <Form.Label className="mt-2">Enrolled courses</Form.Label>
             <Card style={{ maxHeight: "100px", overflowY: "scroll" }}>
               <ListGroup variant="flush">
-                {getCoursesInfo(student?.courseIds, courses).map(
+                {getCoursesInfo(selectedStudent?.courseIds, courses).map(
                   (course, index) => (
                     <ListGroup.Item key={index}>
-                      <Card.Link
-                        href={`/courses/${course._id}`}
-                        className="link"
-                      >
-                        {course.name} - {course.year}
-                      </Card.Link>
+                      <Link to={`/courses/${course?._id}`} className="link">
+                        {course?.name} - {course?.year}
+                      </Link>
                     </ListGroup.Item>
                   )
                 )}
-                {(!student?.courseIds ||
+                {(!selectedStudent?.courseIds ||
                   !courses ||
-                  student?.courseIds.length === 0 ||
+                  selectedStudent?.courseIds.length === 0 ||
                   courses.length === 0) && (
                   <ListGroup.Item>No courses enrolled</ListGroup.Item>
                 )}
               </ListGroup>
             </Card>
           </Form.Group>
+          {alert.show && (
+            <AlertMessage
+              data={{
+                alert,
+                setAlert,
+                otherStyles: { margin: "11px 0 -4px" },
+              }}
+            />
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="info" type="submit" disabled={isSaving}>
-            {editBtnText}
+            {isSaving ? "Saving..." : editBtnText}
           </Button>
           {isEditable && (
             <Button

@@ -2,14 +2,13 @@ import {
   UPDATE_STUDENT,
   DELETE_STUDENT,
   SELECT_STUDENT,
-  DESELECT_STUDENT,
   SET_FOUND_STUDENTS,
   REMOVE_STUDENT_FROM_COURSE,
 } from "./constants";
 
 const studentReducer = (state, action) => {
   const { type, payload } = action;
-  const { foundStudents, studentInfo } = payload;
+  const { foundStudents, selectedStudent, studentInfo } = payload;
 
   switch (type) {
     case SET_FOUND_STUDENTS:
@@ -20,14 +19,7 @@ const studentReducer = (state, action) => {
     case SELECT_STUDENT:
       return {
         ...state,
-        selectedStudent: {
-          student: studentInfo.student,
-        },
-      };
-    case DESELECT_STUDENT:
-      return {
-        ...state,
-        selectedStudent: null,
+        selectedStudent: studentInfo,
       };
     case REMOVE_STUDENT_FROM_COURSE:
       return {
@@ -44,6 +36,7 @@ const studentReducer = (state, action) => {
       return {
         ...state,
         foundStudents,
+        selectedStudent,
       };
     default:
       return state;

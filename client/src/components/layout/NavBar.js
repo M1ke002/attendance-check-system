@@ -1,14 +1,21 @@
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
-import Button from "react-bootstrap/Button";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import GroupIcon from "@mui/icons-material/Group";
+import Avatar from "@mui/material/Avatar";
+import Menu from "@mui/material/Menu";
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import { deepPurple, red } from "@mui/material/colors";
 
-import { useContext } from "react";
+import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { authContext } from "../../contexts/AuthContext";
 
@@ -17,6 +24,9 @@ function NavBar() {
     authState: { user },
     logoutUser,
   } = useContext(authContext);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
   return (
     <Navbar expand="lg" bg="primary" variant="dark" className="shadow navbar">
@@ -47,28 +57,80 @@ function NavBar() {
                 <span className="mx-1">Students</span>
               </div>
             </Nav.Link>
-            <Nav.Link to="/profile" as={Link}>
-              <div className="d-flex">
-                <AccountCircleIcon />
-                <span className="mx-1">Profile</span>
-              </div>
-            </Nav.Link>
-          </Nav>
-
-          <Nav>
-            <Nav.Link className="font-weight-bolder text-white me-3" disabled>
-              Welcome, {user.username}
-            </Nav.Link>
-            <Button
-              variant="success"
-              className="font-weight-bolder text-white"
-              onClick={() => logoutUser()}
-            >
-              <LogoutIcon />
-              <span className="ms-1">Logout</span>
-            </Button>
           </Nav>
         </Navbar.Collapse>
+        <Nav>
+          <Nav.Link className="font-weight-bolder text-white me-1" disabled>
+            Welcome, {user.username}
+          </Nav.Link>
+          <Tooltip title="Account settings">
+            <IconButton
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+              size="small"
+            >
+              <Avatar sx={{ width: 35, height: 35, bgcolor: deepPurple[500] }}>
+                {user.username.charAt(0).toUpperCase()}
+              </Avatar>
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={() => setAnchorEl(null)}
+            onClick={() => setAnchorEl(null)}
+            PaperProps={{
+              elevation: 0,
+              sx: {
+                overflow: "visible",
+                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.1))",
+                mt: 1.5,
+                "&:before": {
+                  content: '""',
+                  display: "block",
+                  position: "absolute",
+                  top: 0,
+                  right: 14,
+                  width: 10,
+                  height: 10,
+                  bgcolor: "background.paper",
+                  transform: "translateY(-50%) rotate(45deg)",
+                  zIndex: 0,
+                },
+              },
+            }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          >
+            <Nav.Link to="/profile" as={Link}>
+              <MenuItem style={{ paddingLeft: "25px", paddingRight: "60px" }}>
+                <ListItemIcon>
+                  <AccountCircleIcon fontSize="small" />
+                </ListItemIcon>
+                <span style={{ fontSize: "15px", marginLeft: "-5px" }}>
+                  Profile
+                </span>
+              </MenuItem>
+            </Nav.Link>
+            <Divider sx={{ mt: 1, mb: 1 }} />
+            <MenuItem
+              style={{ paddingLeft: "25px", paddingRight: "60px" }}
+              onClick={() => logoutUser()}
+            >
+              <ListItemIcon sx={{ minWidth: 1 }}>
+                <LogoutIcon fontSize="small" sx={{ color: red[500] }} />
+              </ListItemIcon>
+              <span
+                style={{
+                  color: red[500],
+                  fontSize: "15px",
+                  marginLeft: "-5px",
+                }}
+              >
+                Logout
+              </span>
+            </MenuItem>
+          </Menu>
+        </Nav>
       </Container>
     </Navbar>
   );

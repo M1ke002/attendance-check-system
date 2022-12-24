@@ -17,36 +17,7 @@ function StudentsTableToolbar({ data }) {
   const [searchInput, setSearchInput] = useState("");
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
 
-  // useEffect(() => {
-  //   setSearchInput("");
-  //   setRows(foundStudents);
-  // }, [foundStudents, setRows]);
-
-  // useEffect(() => {
-  //   const id = setTimeout(() => {
-  //     const values = searchInput.trim().toLowerCase().split(" ");
-  //     //if empty search -> show all
-  //     if (values[0] === "") {
-  //       setRows(foundStudents);
-  //     } else {
-  //       setRows(
-  //         foundStudents.filter((data) =>
-  //           values.every((value) => {
-  //             return (
-  //               data.studentId.toLowerCase().includes(value) ||
-  //               data.name.toLowerCase().includes(value)
-  //             );
-  //           })
-  //         )
-  //       );
-  //     }
-  //   }, 600);
-
-  //   return () => clearTimeout(id);
-  // }, [searchInput, foundStudents, setRows]);
-
   useEffect(() => {
-    console.log("run1");
     const values = searchInput.trim().toLowerCase().split(" ");
     if (values[0] === "") {
       setRows(foundStudents);
@@ -65,7 +36,6 @@ function StudentsTableToolbar({ data }) {
   }, [foundStudents, setRows]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    console.log("run2");
     const id = setTimeout(() => {
       const values = searchInput.trim().toLowerCase().split(" ");
       //if empty search -> show all
