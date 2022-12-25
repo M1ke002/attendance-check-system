@@ -65,6 +65,11 @@ body {
   min-height: calc(100vh - var(--navbar-height));
 }
 
+.page-bg-white {
+  background-color: var(--white);
+  min-height: calc(100vh - var(--navbar-height));
+}
+
 
 /* drop file */
 .drop-file-input {

@@ -2,11 +2,13 @@ import { GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import SaveIcon from "@mui/icons-material/Save";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import QRCodeModal from "../../components/layout/Modal/QRCodeModal";
 import { toast } from "react-toastify";
 
 import { useState } from "react";
 
 function AttendanceTableToolbar(props) {
+  const [showQRCodeModal, setShowQRCodeModal] = useState(false);
   const [isSavingData, setIsSavingData] = useState(false);
   const { selectionModel, rows, attendanceData, getAllCourses } = props;
 
@@ -101,12 +103,20 @@ function AttendanceTableToolbar(props) {
             )}
             <span className="ms-1">{isSavingData ? "Saving..." : "Save"}</span>
           </Button>
-          <Button variant="success" className="me-2">
+          <Button
+            variant="success"
+            className="me-2"
+            onClick={() => {
+              if (!checkCourseSelected()) return;
+              setShowQRCodeModal(true);
+            }}
+          >
             Generate QR
           </Button>
         </div>
         <GridToolbarQuickFilter />
       </GridToolbarContainer>
+      <QRCodeModal data={{ showQRCodeModal, setShowQRCodeModal, attendance }} />
     </>
   );
 }

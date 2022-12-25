@@ -2,9 +2,17 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import QRCode from "react-qr-code";
 
-function QRCodeModal() {
+const IP = "192.168.1.4:3000";
+
+function QRCodeModal({ data }) {
+  const { showQRCodeModal, setShowQRCodeModal, attendance } = data;
+
+  const onCloseModal = () => {
+    setShowQRCodeModal(false);
+  };
+
   return (
-    <Modal show={true} centered size="lg">
+    <Modal show={showQRCodeModal} centered size="lg" onHide={onCloseModal}>
       <Modal.Header closeButton>
         <Modal.Title style={{ fontSize: "20px" }}>
           Python programming - 2022, 25/12/2022
@@ -22,12 +30,14 @@ function QRCodeModal() {
           <QRCode
             size={256}
             style={{ height: "100%", width: "100%" }}
-            value={"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
+            value={`${IP}/attendance/check/${attendance?._id}`}
           />
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="danger">Close</Button>
+        <Button variant="danger" onClick={onCloseModal}>
+          Close
+        </Button>
       </Modal.Footer>
     </Modal>
   );

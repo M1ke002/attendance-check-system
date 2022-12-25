@@ -1,6 +1,6 @@
 import { createContext, useReducer } from "react";
 import attendanceReducer from "../reducers/attendanceReducer";
-import { apiUrl } from "./constants";
+import { apiUrl, mobileApiUrl } from "./constants";
 import axios from "axios";
 
 import {
@@ -19,6 +19,8 @@ function AttendanceContext({ children }) {
     attendance: null,
     isAttendanceLoading: true,
   });
+
+  console.log(attendanceState.attendance);
 
   const getAttendance = async (courseInfo) => {
     const { courseId, date } = courseInfo;
@@ -40,6 +42,18 @@ function AttendanceContext({ children }) {
       dispatch({
         type: ATTENDANCE_LOADED_FAILED,
       });
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const getAttendanceDetails = async (attendanceId) => {
+    try {
+      const res = await axios.get(
+        `${mobileApiUrl}/attendance/details?attendanceId=${attendanceId}`
+      );
+      return res.data;
+    } catch (error) {
       if (error.response) return error.response.data;
       else return { success: false, message: error.message };
     }
@@ -105,10 +119,6 @@ function AttendanceContext({ children }) {
     });
   };
 
-  // const updateAttendanceOnStudentUnenroll = () => {
-
-  // }
-
   const attendanceData = {
     attendanceState,
     getAttendance,
@@ -116,6 +126,7 @@ function AttendanceContext({ children }) {
     updateAttendance,
     clearAttendance,
     createAttendance,
+    getAttendanceDetails,
   };
   return (
     <attendanceContext.Provider value={attendanceData}>

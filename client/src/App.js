@@ -8,6 +8,7 @@ import Courses from "./pages/Courses";
 import CoursePage from "./pages/CoursePage";
 import Profile from "./pages/Profile";
 import Students from "./pages/Students";
+import AttendanceCheck from "./pages/AttendanceCheck";
 import AuthContextProvider from "./contexts/AuthContext";
 import AttendanceContextProvider from "./contexts/AttendanceContext";
 import CourseContextProvider from "./contexts/CourseContext";
@@ -38,6 +39,11 @@ function App() {
                     exact
                     path="/register"
                     element={<Auth routeType="register" />}
+                  />
+                  <Route
+                    exact
+                    path="/attendance/check/:attendanceId"
+                    element={<AttendanceCheck />}
                   />
                   <Route element={<ProtectedRoutes />}>
                     <Route exact path="/attendance" element={<Attendance />} />

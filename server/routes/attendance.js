@@ -51,6 +51,44 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
+//@route GET /api/attendance/details?attendanceId=123
+//@desc get attendance details for QR check
+//@accessability public
+router.get("/details", async (req, res) => {
+  const { attendanceId } = req.query;
+  if (!attendanceId)
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing attendance id" });
+  try {
+    const attendance = await Attendance.findOne({
+      _id: attendanceId,
+    })?.populate({
+      path: "course",
+      model: "courses",
+      populate: {
+        path: "students",
+        model: "students",
+      },
+    });
+
+    //if no attendance existed
+    if (!attendance)
+      return res
+        .status(404)
+        .json({ success: false, message: "attendance not found" });
+
+    return res.json({
+      success: true,
+      message: "attendance found",
+      attendance: attendance,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 //@route POST /api/attendance
 //@desc create attendance list for a course
 //@accessability private
@@ -179,16 +217,6 @@ router.delete("/:attendanceId", verifyToken, async (req, res) => {
       { _id: courseId, user: req.userId },
       { $pull: { attendances: deletedAttendance._id } }
     );
-    // const courseId = deletedAttendance.course;
-    // const course = await Course.find({_id: courseId, user: req.userId});
-    // if (!course)
-    //     return res.status(400).json({success: false, message: 'course does not exist when delete attendance'});
-    // const newAttendanceList = course.attendances.filter(attendanceId => {
-    //     return deletedAttendance._id !== attendanceId;
-    // })
-    // course.attendances = newAttendanceList;
-    // await course.save();
-
     res.json({
       success: true,
       message: "Delete successful",

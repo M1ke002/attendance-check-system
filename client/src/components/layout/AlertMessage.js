@@ -1,7 +1,7 @@
 import Alert from "react-bootstrap/Alert";
 
 function AlertMessage({ data }) {
-  const { alert, setAlert, otherStyles = {} } = data;
+  const { alert, setAlert, dismissible = true, otherStyles = {} } = data;
   const { type, message } = alert;
 
   return (
@@ -28,7 +28,7 @@ function AlertMessage({ data }) {
 
       <Alert
         variant={type}
-        dismissible
+        dismissible={dismissible}
         onClose={() => setAlert({ ...alert, show: false })}
         className="text-black d-flex align-items-center justify-content-center"
         style={{ ...otherStyles, height: "2.8rem" }}
