@@ -65,8 +65,10 @@ function AttendanceTable() {
   // console.log("rerender");
   const {
     attendanceState: { attendance },
+    getAttendance,
     createAttendance,
     updateAttendance,
+    setAttendanceValid,
   } = useContext(attendanceContext);
 
   const {
@@ -79,6 +81,9 @@ function AttendanceTable() {
   const [pageSize, setPageSize] = useState(10);
   const [rows, setRows] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
+
+  // if (attendance) console.log("attendance id: ", attendance._id);
+  console.log("test", course);
 
   useEffect(() => {
     if (attendance && course && date) {
@@ -272,8 +277,10 @@ function AttendanceTable() {
               rows,
               attendanceData: {
                 attendance,
+                getAttendance,
                 createAttendance,
                 updateAttendance,
+                setAttendanceValid,
                 course,
                 date,
               },

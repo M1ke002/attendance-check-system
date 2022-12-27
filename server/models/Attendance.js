@@ -28,6 +28,10 @@ const attendanceSchema = new Schema({
     ref: "courses",
     required: true,
   },
+  valid: {
+    type: Boolean,
+    default: true,
+  },
   user: {
     type: Schema.Types.ObjectId,
     ref: "users",

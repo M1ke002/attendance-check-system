@@ -228,4 +228,85 @@ router.delete("/:attendanceId", verifyToken, async (req, res) => {
   }
 });
 
+//@route POST /api/attendance/check-student
+//@desc check attendance for a student
+//@accessability public
+router.post("/check-student", async (req, res) => {
+  const { studentId, attendanceId } = req.body;
+  if (!studentId || !attendanceId)
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing student id/attendance id" });
+  try {
+    const attendance = await Attendance.findOne({ _id: attendanceId });
+    if (!attendance)
+      return res
+        .status(400)
+        .json({ success: false, message: "Attendance does not exist" });
+    //if attendance is not valid anymore
+    if (!attendance.valid)
+      return res.status(400).json({
+        success: false,
+        message: "You can't check attendance on this date",
+      });
+    let isStudentFound = false;
+    attendance.records = attendance.records.map((record) => {
+      if (record.student.equals(studentId)) {
+        isStudentFound = true;
+        return {
+          ...record,
+          present: true,
+        };
+      } else {
+        return record;
+      }
+    });
+    if (!isStudentFound)
+      return res.status(400).json({
+        success: false,
+        message: "Student id not found in attendance list",
+      });
+    await attendance.save();
+    res.json({
+      success: true,
+      message: "Attendance checked!",
+      attendance,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+//@route POST /api/attendance/set-valid
+//@desc set whether student can check this attendance or not
+//@accessability private
+router.post("/set-valid", verifyToken, async (req, res) => {
+  const { attendanceId, isValid } = req.body;
+  if (!attendanceId || !isValid)
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing attendance id/isValid" });
+  try {
+    const attendance = await Attendance.findOne({
+      _id: attendanceId,
+      user: req.userId,
+    });
+    if (!attendance)
+      return res
+        .status(400)
+        .json({ success: false, message: "Attendance does not exist" });
+    attendance.valid = isValid;
+    await attendance.save();
+    res.json({
+      success: true,
+      message: `Attendance validity is set to ${isValid}`,
+      attendance,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 module.exports = router;

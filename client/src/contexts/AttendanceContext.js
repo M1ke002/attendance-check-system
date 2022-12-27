@@ -119,6 +119,32 @@ function AttendanceContext({ children }) {
     });
   };
 
+  const checkAttendance = async (studentId, attendanceId) => {
+    try {
+      const res = await axios.post(`${mobileApiUrl}/attendance/check-student`, {
+        studentId,
+        attendanceId,
+      });
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const setAttendanceValid = async (attendanceId, isValid) => {
+    try {
+      const res = await axios.post(`${apiUrl}/attendance/set-valid`, {
+        attendanceId,
+        isValid,
+      });
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
   const attendanceData = {
     attendanceState,
     getAttendance,
@@ -126,7 +152,9 @@ function AttendanceContext({ children }) {
     updateAttendance,
     clearAttendance,
     createAttendance,
+    checkAttendance,
     getAttendanceDetails,
+    setAttendanceValid,
   };
   return (
     <attendanceContext.Provider value={attendanceData}>

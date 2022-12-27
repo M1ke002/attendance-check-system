@@ -28,8 +28,12 @@ function AttendanceSearch() {
 
   const [isLoadingAttendance, setIsLoadingAttendance] = useState(false);
 
-  const { courseState, getSelectedCourseInfo, clearSelectedCourseInfo } =
-    useContext(courseContext);
+  const {
+    courseState,
+    getSelectedCourseInfo,
+    clearSelectedCourseInfo,
+    getAllCourses,
+  } = useContext(courseContext);
 
   const { courses, isCourseLoading } = courseState;
 
@@ -48,18 +52,20 @@ function AttendanceSearch() {
       });
       return;
     }
-
     setIsLoadingAttendance(true);
     await getAttendance({
       courseId: courseField,
       date: dateField,
     });
-    setIsLoadingAttendance(false);
 
+    const res = await getAllCourses();
+    //TODO: why getSelectedCourseInfo still uses old courses state?
     getSelectedCourseInfo({
       courseId: courseField,
       date: dateField,
+      newCourses: res?.courses,
     });
+    setIsLoadingAttendance(false);
     //fail -> generate attendance draft from selected course
     //else -> generate attendance
   };

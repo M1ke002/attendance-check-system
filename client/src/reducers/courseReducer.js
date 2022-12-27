@@ -13,11 +13,15 @@ const courseReducer = (state, action) => {
 
   switch (type) {
     case COURSE_LOADED_SUCCESS:
+      // console.log("here", payload.course);
       return {
         ...state,
         isCourseLoading: false,
         courses: payload.courses,
-        selectedCourseInfo: payload.selectedCourseInfo,
+        selectedCourseInfo: {
+          ...state.selectedCourseInfo,
+          course: payload.course,
+        },
       };
     case COURSE_LOADED_FAILED:
       return {

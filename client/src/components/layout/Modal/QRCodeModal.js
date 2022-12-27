@@ -2,10 +2,25 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import QRCode from "react-qr-code";
 
+import { useState } from "react";
+
 const IP = "192.168.1.4:3000";
 
 function QRCodeModal({ data }) {
-  const { showQRCodeModal, setShowQRCodeModal, attendance } = data;
+  const {
+    showQRCodeModal,
+    setShowQRCodeModal,
+    attendance,
+    setAttendanceValid,
+  } = data;
+  const [isStopping, setIsStopping] = useState(false);
+
+  const stopCheckAttendance = async () => {
+    setIsStopping(true);
+    await setAttendanceValid(attendance._id, false);
+    setIsStopping(false);
+    onCloseModal();
+  };
 
   const onCloseModal = () => {
     setShowQRCodeModal(false);
@@ -35,6 +50,13 @@ function QRCodeModal({ data }) {
         </div>
       </Modal.Body>
       <Modal.Footer>
+        <Button
+          variant="primary"
+          onClick={stopCheckAttendance}
+          disabled={isStopping}
+        >
+          {isStopping ? "Stopping..." : "Stop checking"}
+        </Button>
         <Button variant="danger" onClick={onCloseModal}>
           Close
         </Button>

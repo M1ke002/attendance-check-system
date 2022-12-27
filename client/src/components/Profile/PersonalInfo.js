@@ -75,7 +75,7 @@ function PersonalInfo() {
 
         <div className="d-flex justify-content-center mt-2">
           <Avatar
-            sx={{ width: 75, height: 75 }}
+            sx={{ width: 80, height: 80 }}
             style={{ border: "1px solid grey" }}
             src={avatarImg}
             alt="Avatar"

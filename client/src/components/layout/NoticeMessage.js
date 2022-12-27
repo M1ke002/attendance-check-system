@@ -66,7 +66,6 @@ function NoticeMessage() {
 
       <Alert
         variant="light-success"
-        style={{ height: "4rem" }}
         className="d-flex align-items-center justify-content-between text-black"
       >
         <h5 style={{ color: "#336239", marginBottom: "0" }}>
@@ -81,7 +80,7 @@ function NoticeMessage() {
           style={{ textDecoration: "none", color: "rgb(204 87 98)" }}
           onClick={() => setShowConfirmDeleteModal(true)}
         >
-          <span className="me-1">Click to cancel this class</span>
+          <span className="me-1">Cancel this class</span>
           <ClearIcon fontSize="small" />
         </Button>
       </Alert>

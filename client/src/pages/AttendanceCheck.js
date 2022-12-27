@@ -4,11 +4,15 @@ import Button from "react-bootstrap/Button";
 import Select from "react-select";
 import AlertMessage from "../components/layout/AlertMessage";
 import Backdrop from "@mui/material/Backdrop";
+import Spinner from "react-bootstrap/Spinner";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { attendanceContext } from "../contexts/AttendanceContext";
+import { STUDENT_TOKEN_NAME } from "../contexts/constants";
+
+//TODO: what if student checks after class finished?
 
 const getDisplayedStudents = (students) => {
   return students.map((student) => {
@@ -20,21 +24,29 @@ const getDisplayedStudents = (students) => {
   });
 };
 
+const getStudentInfoById = (id, students) => {
+  const student = students.find((student) => student._id === id);
+  if (!student) return "";
+  return `${student.studentId} ${student.name}`;
+};
+
 function AttendanceCheck() {
   const { attendanceId } = useParams();
   const [attendanceInfo, setAttendanceInfo] = useState(null);
+  const [studentId, setStudentId] = useState(() => {
+    return localStorage.getItem(STUDENT_TOKEN_NAME);
+  });
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedStudent, setSelectedStudent] = useState("");
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+  const [selectedStudentId, setSelectedStudentId] = useState("");
   const [alert, setAlert] = useState({
     message: "",
     show: false,
     type: "",
   });
 
-  const { getAttendanceDetails } = useContext(attendanceContext);
-
-  console.log(attendanceId);
+  const { getAttendanceDetails, checkAttendance } =
+    useContext(attendanceContext);
 
   useEffect(() => {
     document.body.style.backgroundColor = "#f7f7f9";
@@ -44,10 +56,47 @@ function AttendanceCheck() {
   }, []);
 
   useEffect(() => {
+    const check = async () => {
+      if (attendanceId && studentId) {
+        setIsChecking(true);
+        //check attendance here
+        const res = await checkAttendance(studentId, attendanceId);
+        if (res.success) {
+          setAlert((alert) => {
+            return {
+              ...alert,
+              message: res.message,
+              show: true,
+              type: "light-success",
+            };
+          });
+          return;
+        } else {
+          console.log("check attendance failed", res);
+          setAlert((alert) => {
+            return {
+              ...alert,
+              message: res.message,
+              show: true,
+              type: "light-danger",
+            };
+          });
+        }
+        setIsChecking(false);
+      }
+    };
+    check();
+  }, [studentId, attendanceId, checkAttendance]);
+
+  useEffect(() => {
     const getData = async () => {
       setIsLoading(true);
       const res = await getAttendanceDetails(attendanceId);
-      setAttendanceInfo(res.attendance);
+      if (res.success) {
+        setAttendanceInfo(res.attendance);
+      } else {
+        console.log("Attendance not found!");
+      }
       setIsLoading(false);
       console.log(res);
     };
@@ -55,12 +104,13 @@ function AttendanceCheck() {
   }, [attendanceId, getAttendanceDetails]);
 
   const handleSelectStudent = () => {
-    setIsChecked(true);
-    setAlert({
-      ...alert,
-      message: "Attendance checked!",
-      show: true,
-      type: "light-success",
+    if (selectedStudentId === "") {
+      console.log("Please select a student!");
+      return;
+    }
+    setStudentId(() => {
+      localStorage.setItem(STUDENT_TOKEN_NAME, selectedStudentId);
+      return selectedStudentId;
     });
   };
 
@@ -68,15 +118,26 @@ function AttendanceCheck() {
     return (
       <Backdrop
         sx={{
-          color: "#fff",
+          color: "#ccc",
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: "rgb(0 0 0 / 30%);",
+          backgroundColor: "rgba(166, 174, 176, 0.1)",
         }}
         open={isLoading}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
     );
+  }
+
+  if (!attendanceInfo) {
+    return <h4 className="text-center">Page not found</h4>;
+  }
+
+  if (studentId && attendanceInfo) {
+    if (getStudentInfoById(studentId, attendanceInfo.course.students) === "")
+      return (
+        <h4 className="text-center">You are not enrolled in this course</h4>
+      );
   }
 
   return (
@@ -111,21 +172,34 @@ function AttendanceCheck() {
           <p>
             <strong>Date:</strong> {attendanceInfo ? attendanceInfo.date : ""}
           </p>
-          {isChecked && (
+          {studentId && (
             <p>
-              <strong>Student:</strong> BI11-100 Mit
+              <strong>Student:</strong>{" "}
+              {attendanceInfo &&
+                getStudentInfoById(studentId, attendanceInfo.course.students)}
             </p>
           )}
-          {isChecked ? (
-            alert.show && (
-              <AlertMessage
-                data={{
-                  alert,
-                  setAlert,
-                  dismissible: false,
-                  otherStyles: { margin: "11px 0 -4px" },
-                }}
-              />
+          {studentId ? (
+            isChecking ? (
+              <div className="d-flex align-items-center justify-content-center">
+                <Spinner
+                  as="span"
+                  animation="border"
+                  role="status"
+                  aria-hidden="true"
+                />
+              </div>
+            ) : (
+              alert.show && (
+                <AlertMessage
+                  data={{
+                    alert,
+                    setAlert,
+                    dismissible: false,
+                    otherStyles: { margin: "11px 0 -4px" },
+                  }}
+                />
+              )
             )
           ) : (
             <>
@@ -150,9 +224,7 @@ function AttendanceCheck() {
                 noOptionsMessage={() => "No students found"}
                 isClearable
                 onChange={(e) => {
-                  setSelectedStudent({
-                    selectedStudent: e ? e.value : null,
-                  });
+                  setSelectedStudentId(e ? e.value : "");
                 }}
               />
               <span

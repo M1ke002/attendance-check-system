@@ -143,87 +143,10 @@ router.delete("/:id", verifyToken, async (req, res) => {
       { $pull: { enrolledCourses: deletedCourse._id } }
     );
 
-    // deletedCourse.students.forEach(async(studentId) => {
-    //     await Student.findByIdAndUpdate(
-    //         studentId,
-    //         {$pull: {enrolledCourses: id}},
-    //     )
-    // })
-
     res.json({
       success: true,
       message: "Course deleted",
       course: deletedCourse,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
-
-//@route GET /api/courses/:id/attendance-status
-//@desc get attendance status for a course
-//@accessability private
-router.get("/:id/attendance-status", verifyToken, async (req, res) => {
-  const id = req.params.id;
-  try {
-    //get all students enrolled for this course
-    const students = await Student.find({ course: id, user: req.userId });
-    if (!students)
-      return res
-        .status(400)
-        .json({ success: false, message: "No students found" });
-
-    //get all attendance records for the course
-    const attendanceList = await Attendance.find({
-      course: id,
-      user: req.userId,
-    });
-    if (!attendanceList)
-      return res
-        .status(400)
-        .json({ success: false, message: "No attendance records found" });
-
-    //get course info
-    const course = await Course.find({ _id: id, user: req.userId });
-    if (!course)
-      return res
-        .status(400)
-        .json({ success: false, message: "Course not found" });
-
-    //get total number of classes
-    const totalClasses = attendanceList.length;
-
-    //get student id, name, courseId, overall attendance count
-    const studentMap = new Map();
-    attendanceList.forEach((attendance) => {
-      const { records } = attendance;
-      records.forEach((record) => {
-        const studentId = record.student;
-        const present = record.present;
-        if (studentMap.has(studentId)) {
-          //if student already in map
-          const studentRecord = studentMap.get(studentId);
-          studentRecord.count += present ? 1 : 0;
-          studentMap.set(studentId, studentRecord);
-        } else {
-          const student = students.find((student) => student._id == studentId);
-          const studentRecord = {
-            name: student.name,
-            studentId: student.studentId,
-            courseId: course.courseId,
-            count: present ? 1 : 0,
-          };
-          studentMap.set(studentId, studentRecord);
-        }
-      });
-    });
-    //send res back to the client, sorted by student name
-    res.json({
-      success: true,
-      attendanceStatus: [...studentMap.values()] //arr of student records
-        .sort((a, b) => a.name.localeCompare(b.name)),
-      totalClasses,
     });
   } catch (err) {
     console.log(err);

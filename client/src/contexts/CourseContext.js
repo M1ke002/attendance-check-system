@@ -24,6 +24,10 @@ function CourseContext({ children }) {
     isCourseLoading: true,
   });
 
+  const { course: selectedCourse } = courseState.selectedCourseInfo;
+
+  console.log("yeet", selectedCourse);
+
   const {
     authState: { isAuthenticated },
   } = useContext(authContext);
@@ -36,27 +40,21 @@ function CourseContext({ children }) {
     getCourses();
   }, [isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  console.log(courseState.courses);
-
   const getAllCourses = async () => {
     try {
       const res = await axios.get(`${apiUrl}/courses`);
       if (res.data.success) {
         let updatedCourse = null;
-        if (courseState.selectedCourseInfo.course) {
-          const currCourse = courseState.selectedCourseInfo.course;
+        if (selectedCourse) {
           updatedCourse = res.data.courses.find(
-            (course) => course._id === currCourse._id
+            (course) => course._id === selectedCourse._id
           );
         }
         dispatch({
           type: COURSE_LOADED_SUCCESS,
           payload: {
             courses: res.data.courses,
-            selectedCourseInfo: {
-              ...courseState.selectedCourseInfo,
-              course: updatedCourse,
-            },
+            course: updatedCourse,
           },
         });
       }
@@ -75,10 +73,11 @@ function CourseContext({ children }) {
   };
 
   const getSelectedCourseInfo = (courseInfo) => {
-    const { courseId, date } = courseInfo;
-    const selectedCourse = courseState.courses.find(
-      (course) => course._id === courseId
-    );
+    const { courseId, date, newCourses } = courseInfo;
+    let courses = newCourses ? newCourses : courseState.courses;
+    // console.log("tt", courseState.courses);
+    const selectedCourse = courses.find((course) => course._id === courseId);
+    // console.log("yay", selectedCourse);
     dispatch({
       type: SELECT_COURSE_INFO,
       payload: {
