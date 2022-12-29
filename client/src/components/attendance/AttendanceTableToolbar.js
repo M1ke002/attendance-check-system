@@ -6,17 +6,17 @@ import Spinner from "react-bootstrap/Spinner";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip from "@mui/material/Tooltip";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 import QRCodeModal from "../../components/layout/Modal/QRCodeModal";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const VALID = "Open";
+const INVALID = "Closed";
 
 function AttendanceTableToolbar(props) {
-  const [showQRCodeModal, setShowQRCodeModal] = useState(false);
-  const [isSavingData, setIsSavingData] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingQR, setIsLoadingQR] = useState(false);
   const { selectionModel, rows, attendanceData, getAllCourses } = props;
-
   const {
     attendance,
     getAttendance,
@@ -26,6 +26,22 @@ function AttendanceTableToolbar(props) {
     course,
     date,
   } = attendanceData;
+
+  const [showQRCodeModal, setShowQRCodeModal] = useState(false);
+  const [isSavingData, setIsSavingData] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isChanging, setIsChanging] = useState(false);
+  const [isLoadingQR, setIsLoadingQR] = useState(false);
+  const [valid, setValid] = useState(() => {
+    if (!attendance) return "";
+    return attendance.valid ? VALID : INVALID;
+  });
+
+  useEffect(() => {
+    if (attendance) {
+      setValid(attendance.valid ? VALID : INVALID);
+    }
+  }, [attendance]);
 
   const checkCourseSelected = () => {
     if (!course || !date) {
@@ -37,6 +53,22 @@ function AttendanceTableToolbar(props) {
       return false;
     }
     return true;
+  };
+
+  const handleAttendaneValid = async (e) => {
+    setValid(e.target.value);
+    const valid = e.target.value === VALID ? true : false;
+    if (valid !== attendance.valid) {
+      setIsChanging(true);
+      const res = await setAttendanceValid(attendance._id, valid);
+      await getAttendance({
+        courseId: course._id,
+        date,
+      });
+      // await getAllCourses();
+      console.log(res);
+      setIsChanging(false);
+    }
   };
 
   const generateQR = async () => {
@@ -65,8 +97,6 @@ function AttendanceTableToolbar(props) {
       await getAllCourses();
       setIsLoadingQR(false);
       console.log(res);
-    } else {
-      await setAttendanceValid(attendance._id, true);
     }
     setShowQRCodeModal(true);
   };
@@ -164,7 +194,7 @@ function AttendanceTableToolbar(props) {
             onClick={generateQR}
             disabled={isLoadingQR}
           >
-            Generate QR
+            {isLoadingQR ? "Generating" : "Generate QR"}
           </Button>
           <Tooltip title="Refresh" placement="top">
             <span>
@@ -189,14 +219,38 @@ function AttendanceTableToolbar(props) {
             </span>
           </Tooltip>
         </div>
-        <GridToolbarQuickFilter />
+        <div className="d-flex align-items-center">
+          {attendance && (
+            <Tooltip title="Attendance status" placement="top">
+              <TextField
+                select
+                size="small"
+                style={{
+                  backgroundColor: valid === VALID ? "#ddf3d8" : "#ffd8dc",
+                  borderRadius: 20,
+                }}
+                sx={{
+                  mr: 3,
+                  "& fieldset": { borderRadius: 10 },
+                }}
+                variant="outlined"
+                value={valid}
+                onChange={handleAttendaneValid}
+              >
+                <MenuItem value={VALID}>Open</MenuItem>
+                <MenuItem value={INVALID}>Closed</MenuItem>
+              </TextField>
+            </Tooltip>
+          )}
+
+          <GridToolbarQuickFilter />
+        </div>
       </GridToolbarContainer>
       <QRCodeModal
         data={{
           showQRCodeModal,
           setShowQRCodeModal,
           attendance,
-          setAttendanceValid,
         }}
       />
       <Backdrop
@@ -205,7 +259,7 @@ function AttendanceTableToolbar(props) {
           zIndex: (theme) => theme.zIndex.drawer + 1,
           backgroundColor: "rgb(0 0 0 / 30%);",
         }}
-        open={isRefreshing}
+        open={isRefreshing || isChanging}
       >
         <CircularProgress color="inherit" />
       </Backdrop>

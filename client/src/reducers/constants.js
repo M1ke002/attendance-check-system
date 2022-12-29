@@ -1,4 +1,6 @@
+//user and auth
 export const SET_AUTH = "SET_AUTH";
+export const SET_USER_INFO = "SET_USER_INFO";
 
 //course reducer
 export const COURSE_LOADED_SUCCESS = "COURSE_LOADED_SUCCESS";

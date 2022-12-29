@@ -60,6 +60,7 @@ router.post("/register", async (req, res) => {
       user: {
         _id: user._id,
         username: user.username,
+        avatar: "",
       },
     });
   } catch (error) {
@@ -104,6 +105,7 @@ router.post("/login", async (req, res) => {
       user: {
         _id: user._id,
         username: user.username,
+        avatar: user.avatar,
       },
     });
   } catch (error) {
@@ -112,10 +114,10 @@ router.post("/login", async (req, res) => {
   }
 });
 
-//@route POST /api/auth/change-password
+//@route PUT /api/auth/change-password
 //@desc change user password
 //@accessability private
-router.post("/change-password", verifyToken, async (req, res) => {
+router.put("/change-password", verifyToken, async (req, res) => {
   const { currPassword, newPassword } = req.body;
   if (!currPassword || !newPassword)
     return res
@@ -139,7 +141,7 @@ router.post("/change-password", verifyToken, async (req, res) => {
     const hashedPassword = await argon2.hash(newPassword);
     user.password = hashedPassword;
     await user.save();
-    res.json({ success: true, message: "Password changed", user });
+    res.json({ success: true, message: "Password changed" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal Server Error" });

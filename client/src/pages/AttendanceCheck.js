@@ -70,7 +70,6 @@ function AttendanceCheck() {
               type: "light-success",
             };
           });
-          return;
         } else {
           console.log("check attendance failed", res);
           setAlert((alert) => {

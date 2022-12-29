@@ -9,7 +9,6 @@ const studentSchema = new Schema({
   studentId: {
     type: String,
     required: true,
-    unique: true,
   },
   enrolledCourses: {
     type: [

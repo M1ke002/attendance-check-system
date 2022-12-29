@@ -283,7 +283,7 @@ router.post("/check-student", async (req, res) => {
 //@accessability private
 router.post("/set-valid", verifyToken, async (req, res) => {
   const { attendanceId, isValid } = req.body;
-  if (!attendanceId || !isValid)
+  if (!attendanceId || isValid === null)
     return res
       .status(400)
       .json({ success: false, message: "Missing attendance id/isValid" });

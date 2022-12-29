@@ -3,7 +3,7 @@ import axios from "axios";
 import { apiUrl, ACCESS_TOKEN_NAME } from "./constants";
 import setTokenHeader from "../utils/setAuthToken";
 import authReducer from "../reducers/authReducer";
-import { SET_AUTH } from "../reducers/constants";
+import { SET_AUTH, SET_USER_INFO } from "../reducers/constants";
 
 export const authContext = createContext();
 
@@ -109,6 +109,7 @@ function AuthContext({ children }) {
     }
   };
 
+  //TODO: clear attendance and others... when logout (WHY VALID DROPDOWN STILL APPEARS)
   const logoutUser = () => {
     localStorage.removeItem(ACCESS_TOKEN_NAME);
     setTokenHeader(null);
@@ -121,11 +122,94 @@ function AuthContext({ children }) {
     });
   };
 
+  const changePassword = async (currPassword, newPassword) => {
+    try {
+      const res = await axios.put(`${apiUrl}/auth/change-password`, {
+        currPassword,
+        newPassword,
+      });
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const updateUserInfo = async (userInfo) => {
+    try {
+      const res = await axios.put(`${apiUrl}/profile`, userInfo);
+      if (res.data.success) {
+        dispatch({
+          type: SET_USER_INFO,
+          payload: {
+            user: res.data.user,
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const uploadAvatar = async (formData) => {
+    try {
+      const res = await axios.post(
+        `${apiUrl}/profile/upload-avatar`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      if (res.data.success) {
+        dispatch({
+          type: SET_USER_INFO,
+          payload: {
+            user: {
+              ...authState.user,
+              avatar: res.data.avatar,
+            },
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const deleteAvatar = async () => {
+    try {
+      const res = await axios.delete(`${apiUrl}/profile/delete-avatar`);
+      if (res.data.success) {
+        dispatch({
+          type: SET_USER_INFO,
+          payload: {
+            user: {
+              ...authState.user,
+              avatar: res.data.avatar,
+            },
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
   const authData = {
     authState,
     loginUser,
     registerUser,
     logoutUser,
+    updateUserInfo,
+    changePassword,
+    uploadAvatar,
+    deleteAvatar,
   };
 
   return (

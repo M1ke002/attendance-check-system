@@ -14,7 +14,6 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import { deepPurple, red } from "@mui/material/colors";
-import avatarImg from "../../assets/avatar.jpg";
 
 import { useState, useContext } from "react";
 import { Link } from "react-router-dom";
@@ -69,17 +68,19 @@ function NavBar() {
               onClick={(e) => setAnchorEl(e.currentTarget)}
               size="small"
             >
-              <Avatar
-                src={avatarImg}
-                sx={{ width: 35, height: 35 }}
-                style={{ border: "1px solid black" }}
-              >
+              {user.avatar === "" ? (
                 <Avatar
                   sx={{ width: 35, height: 35, bgcolor: deepPurple[500] }}
                 >
                   {user.username.charAt(0).toUpperCase()}
                 </Avatar>
-              </Avatar>
+              ) : (
+                <Avatar
+                  src={`${user.avatar}?cb=${Date.now()}`}
+                  sx={{ width: 35, height: 35 }}
+                  style={{ border: "1px solid black" }}
+                />
+              )}
             </IconButton>
           </Tooltip>
           <Menu
