@@ -26,14 +26,19 @@ function CourseContext({ children }) {
 
   const { course: selectedCourse } = courseState.selectedCourseInfo;
 
-  console.log("yeet", selectedCourse);
-
   const {
     authState: { isAuthenticated },
   } = useContext(authContext);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      if (courseState.courses.length > 0)
+        dispatch({
+          type: COURSE_LOADED_FAILED,
+          payload: {},
+        });
+      return;
+    }
     const getCourses = async () => {
       await getAllCourses();
     };

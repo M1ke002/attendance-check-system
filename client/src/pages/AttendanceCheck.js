@@ -8,11 +8,9 @@ import Spinner from "react-bootstrap/Spinner";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { useParams } from "react-router-dom";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { attendanceContext } from "../contexts/AttendanceContext";
 import { STUDENT_TOKEN_NAME } from "../contexts/constants";
-
-//TODO: what if student checks after class finished?
 
 const getDisplayedStudents = (students) => {
   return students.map((student) => {
@@ -55,11 +53,11 @@ function AttendanceCheck() {
     };
   }, []);
 
-  useEffect(() => {
-    const check = async () => {
+  const check = useMemo(() => {
+    //TODO: move check into useeffect?
+    return async () => {
       if (attendanceId && studentId) {
         setIsChecking(true);
-        //check attendance here
         const res = await checkAttendance(studentId, attendanceId);
         if (res.success) {
           setAlert((alert) => {
@@ -84,10 +82,15 @@ function AttendanceCheck() {
         setIsChecking(false);
       }
     };
-    check();
   }, [studentId, attendanceId, checkAttendance]);
 
   useEffect(() => {
+    check();
+  }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    //TODO: remove attendanceInfo and attendanceInfo dependency?
+    if (attendanceInfo) return;
     const getData = async () => {
       setIsLoading(true);
       const res = await getAttendanceDetails(attendanceId);
@@ -100,7 +103,7 @@ function AttendanceCheck() {
       console.log(res);
     };
     getData();
-  }, [attendanceId, getAttendanceDetails]);
+  }, [attendanceId, attendanceInfo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelectStudent = () => {
     if (selectedStudentId === "") {

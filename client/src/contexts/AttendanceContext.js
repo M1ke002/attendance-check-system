@@ -1,4 +1,5 @@
-import { createContext, useReducer } from "react";
+import { createContext, useReducer, useEffect, useContext } from "react";
+import { authContext } from "./AuthContext";
 import attendanceReducer from "../reducers/attendanceReducer";
 import { apiUrl, mobileApiUrl } from "./constants";
 import axios from "axios";
@@ -20,7 +21,17 @@ function AttendanceContext({ children }) {
     isAttendanceLoading: true,
   });
 
-  console.log(attendanceState.attendance);
+  const {
+    authState: { isAuthenticated },
+  } = useContext(authContext);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      dispatch({
+        type: ATTENDANCE_LOADED_FAILED,
+      });
+    }
+  }, [isAuthenticated]);
 
   const getAttendance = async (courseInfo) => {
     const { courseId, date } = courseInfo;

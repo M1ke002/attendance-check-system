@@ -10,7 +10,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import QRCodeModal from "../../components/layout/Modal/QRCodeModal";
 import { toast } from "react-toastify";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const VALID = "Open";
 const INVALID = "Closed";
@@ -32,16 +32,6 @@ function AttendanceTableToolbar(props) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
   const [isLoadingQR, setIsLoadingQR] = useState(false);
-  const [valid, setValid] = useState(() => {
-    if (!attendance) return "";
-    return attendance.valid ? VALID : INVALID;
-  });
-
-  useEffect(() => {
-    if (attendance) {
-      setValid(attendance.valid ? VALID : INVALID);
-    }
-  }, [attendance]);
 
   const checkCourseSelected = () => {
     if (!course || !date) {
@@ -56,7 +46,6 @@ function AttendanceTableToolbar(props) {
   };
 
   const handleAttendaneValid = async (e) => {
-    setValid(e.target.value);
     const valid = e.target.value === VALID ? true : false;
     if (valid !== attendance.valid) {
       setIsChanging(true);
@@ -226,7 +215,7 @@ function AttendanceTableToolbar(props) {
                 select
                 size="small"
                 style={{
-                  backgroundColor: valid === VALID ? "#ddf3d8" : "#ffd8dc",
+                  backgroundColor: attendance.valid ? "#ddf3d8" : "#ffd8dc",
                   borderRadius: 20,
                 }}
                 sx={{
@@ -234,7 +223,7 @@ function AttendanceTableToolbar(props) {
                   "& fieldset": { borderRadius: 10 },
                 }}
                 variant="outlined"
-                value={valid}
+                value={attendance.valid ? "Open" : "Closed"}
                 onChange={handleAttendaneValid}
               >
                 <MenuItem value={VALID}>Open</MenuItem>

@@ -23,36 +23,21 @@ body {
   text-decoration: underline;
 }
 
-/* login header */
-.auth-header {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	position: fixed;
-	top: 0;
-	width: 100%;
-	height: var(--auth-header-height);
-	background-color: #ececf1;
-	border-bottom: 1px solid #ccc;
-}
-
-.auth-header .title {
-  font-size: 1.7rem;
-  font-weight: 400;
+/* login */
+.login-bg {
+  background-color: #27282e;
+  color: var(--white);
 }
 
 .auth-body {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  height: calc(100vh - var(--auth-header-height));
-  margin-top: var(--auth-header-height);
-}
-
-/* form */
-.auth-form {
-  margin-top: 10rem !important;
+  justify-content: center;
+  height: 100vh;
+  margin: auto;
+  max-width: 492px;
+  padding-bottom: 3rem;
 }
 
 .navbar {

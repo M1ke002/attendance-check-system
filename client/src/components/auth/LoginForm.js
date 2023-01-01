@@ -1,8 +1,6 @@
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
 import Spinner from "react-bootstrap/Spinner";
 
@@ -14,8 +12,8 @@ import AlertMessage from "../layout/AlertMessage";
 function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [userForm, setUserForm] = useState({
-    username: "",
-    password: "",
+    username: "Mitty",
+    password: "1234",
   });
   const { loginUser } = useContext(authContext);
   const [alert, setAlert] = useState({
@@ -60,74 +58,71 @@ function LoginForm() {
   };
 
   return (
-    <Container>
-      <Row>
-        <Col sm={3} md={2} lg={4}></Col>
-        <Col xs={12} sm={6} md={8} lg={4}>
-          <Card className="shadow-sm">
-            <Card.Header as="h4" className="text-center">
-              Login
-            </Card.Header>
-            <Card.Body>
-              <Form onSubmit={handleLogin}>
-                {alert.show && <AlertMessage data={{ alert, setAlert }} />}
-                <Form.Group className="my-3">
-                  <Form.Label>Username</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="username"
-                    name="username"
-                    required
-                    value={username}
-                    onChange={changeFormValue}
-                  />
-                </Form.Group>
-                <Form.Group className="mt-3 mb-1">
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="password"
-                    name="password"
-                    required
-                    value={password}
-                    onChange={changeFormValue}
-                  />
-                </Form.Group>
-                <Link
-                  to="/login"
-                  style={{ textDecoration: "none", color: "#3498db" }}
+    <>
+      <Container>
+        <Card className="shadow-sm overflow-hidden" border="light">
+          <div className="p-4 text-center login-bg text-white">
+            <h4>Login</h4>
+            <span className="text-muted">Attendance check system</span>
+          </div>
+          <div className="p-4">
+            <Form onSubmit={handleLogin}>
+              {alert.show && <AlertMessage data={{ alert, setAlert }} />}
+              <Form.Group className="mb-3">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="username"
+                  name="username"
+                  required
+                  value={username}
+                  onChange={changeFormValue}
+                />
+              </Form.Group>
+              <Form.Group className="mt-3 mb-1">
+                <Form.Label>Password</Form.Label>
+                <Form.Control
+                  type="password"
+                  placeholder="password"
+                  name="password"
+                  required
+                  value={password}
+                  onChange={changeFormValue}
+                />
+              </Form.Group>
+              <Link
+                to="/login"
+                style={{ textDecoration: "none", color: "#3498db" }}
+              >
+                Forgot password?
+              </Link>
+              {isLoading ? (
+                <div className="d-flex justify-content-center mt-3 mb-3">
+                  <Spinner animation="border" variant="info"></Spinner>
+                </div>
+              ) : (
+                <Button
+                  variant="primary"
+                  className="mt-3 mb-3 w-100"
+                  type="submit"
+                  style={{ width: "70px" }}
                 >
-                  Forgot password?
-                </Link>
-                {isLoading ? (
-                  <div className="d-flex justify-content-center mt-3 mb-3">
-                    <Spinner animation="border" variant="info"></Spinner>
-                  </div>
-                ) : (
-                  <Button
-                    variant="primary"
-                    className="mt-3 mb-3 w-100"
-                    type="submit"
-                    style={{ width: "70px" }}
-                  >
-                    Sign in
-                  </Button>
-                )}
-              </Form>
-              <p className="text-center mb-0">
-                Don't have an account?
-                <Link to="/register">
-                  <Button variant="info" size="sm" className="ms-2 text-white">
-                    Register
-                  </Button>
-                </Link>
-              </p>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col sm={3} md={2} lg={4}></Col>
-      </Row>
-    </Container>
+                  Sign in
+                </Button>
+              )}
+            </Form>
+            <p className="text-center mb-0">
+              Don't have an account?
+              <Link to="/register">
+                <Button variant="info" size="sm" className="ms-2 text-white">
+                  Register
+                </Button>
+              </Link>
+            </p>
+          </div>
+        </Card>
+      </Container>
+    </>
   );
 }
 

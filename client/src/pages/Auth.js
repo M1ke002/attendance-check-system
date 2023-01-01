@@ -1,6 +1,6 @@
 import LoginForm from "../components/auth/LoginForm";
 import RegisterForm from "../components/auth/RegisterForm";
-import { useContext } from "react";
+import { useEffect, useContext } from "react";
 import { authContext } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
@@ -10,6 +10,14 @@ import CircularProgress from "@mui/material/CircularProgress";
 function Auth({ routeType }) {
   const { authState } = useContext(authContext);
   const { isAuthenticated, isAuthLoading } = authState;
+
+  useEffect(() => {
+    document.body.style.backgroundColor = "#f7f7f9";
+    return () => {
+      document.body.style.backgroundColor = "#fff";
+    };
+  }, []);
+
   if (isAuthLoading) {
     return (
       <Backdrop
@@ -28,9 +36,6 @@ function Auth({ routeType }) {
   } else {
     return (
       <>
-        <div className="auth-header shadow-sm">
-          <p className="title">Student Attendance System</p>
-        </div>
         <div className="auth-body">
           {routeType === "login" ? <LoginForm /> : <RegisterForm />}
           <p className="text-center text-muted mt-2">

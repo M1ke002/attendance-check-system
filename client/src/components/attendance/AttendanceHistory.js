@@ -25,8 +25,6 @@ function AttendanceHistory({ course }) {
   const { getSelectedCourseInfo } = useContext(courseContext);
   const { getAttendance } = useContext(attendanceContext);
 
-  // console.log("test", attendances);
-
   const sortAttendances = () => {
     if (sortDirection === "asc") {
       //sort in desc
@@ -51,7 +49,6 @@ function AttendanceHistory({ course }) {
     //set selected course info
     //get attendance
     //redirect to attendance page
-    console.log(courseId, date);
     setIsLoadingAttendance(true);
     await getAttendance({
       courseId,

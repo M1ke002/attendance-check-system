@@ -1,8 +1,7 @@
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import QRCode from "react-qr-code";
-
-const IP = "192.168.1.4:3000";
+import { IP } from "../../../contexts/constants";
 
 function QRCodeModal({ data }) {
   const { showQRCodeModal, setShowQRCodeModal, attendance } = data;

@@ -249,28 +249,27 @@ router.post("/check-student", async (req, res) => {
         success: false,
         message: "You can't check attendance on this date",
       });
-    let isStudentFound = false;
-    attendance.records = attendance.records.map((record) => {
-      if (record.student.equals(studentId)) {
-        isStudentFound = true;
-        return {
-          ...record,
-          present: true,
-        };
-      } else {
-        return record;
+
+    const updatedAttendance = await Attendance.findOneAndUpdate(
+      { _id: attendanceId },
+      {
+        $set: {
+          "records.$[record].present": true,
+        },
+      },
+      {
+        arrayFilters: [
+          {
+            "record.student": studentId,
+          },
+        ],
+        new: true,
       }
-    });
-    if (!isStudentFound)
-      return res.status(400).json({
-        success: false,
-        message: "Student id not found in attendance list",
-      });
-    await attendance.save();
+    );
     res.json({
       success: true,
       message: "Attendance checked!",
-      attendance,
+      attendance: updatedAttendance,
     });
   } catch (error) {
     console.log(error);
@@ -296,12 +295,20 @@ router.post("/set-valid", verifyToken, async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Attendance does not exist" });
-    attendance.valid = isValid;
-    await attendance.save();
+
+    const updatedAttendance = await Attendance.findOneAndUpdate(
+      { _id: attendanceId, user: req.userId },
+      {
+        $set: {
+          valid: isValid,
+        },
+      },
+      { new: true }
+    );
     res.json({
       success: true,
       message: `Attendance validity is set to ${isValid}`,
-      attendance,
+      attendance: updatedAttendance,
     });
   } catch (error) {
     console.log(error);
