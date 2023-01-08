@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
 
 function ChangePassword() {
+  const [validated, setValidated] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
   const [passwordInputField, setPasswordInputField] = useState({
     currPassword: "",
@@ -30,6 +31,7 @@ function ChangePassword() {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
+    setValidated(true);
     //validate
     if (currPassword === "" || newPassword === "" || confirmPassword === "") {
       console.log("can't leave empty fields");
@@ -83,16 +85,20 @@ function ChangePassword() {
           Change password
         </p>
 
-        <Form onSubmit={handleChangePassword}>
+        <Form onSubmit={handleChangePassword} noValidate validated={validated}>
           <Form.Group>
             <Form.Label className="mt-2">Current password</Form.Label>
             <Form.Control
               type="password"
+              required
               placeholder="Enter your current password"
               name="currPassword"
               value={currPassword}
               onChange={handleFormInput}
             />
+            <Form.Control.Feedback type="invalid">
+              This field is required!
+            </Form.Control.Feedback>
           </Form.Group>
           <Link
             to="#"
@@ -107,11 +113,15 @@ function ChangePassword() {
                 <Form.Label>New password</Form.Label>
                 <Form.Control
                   type="password"
+                  required
                   placeholder="Enter your new password"
                   name="newPassword"
                   value={newPassword}
                   onChange={handleFormInput}
                 />
+                <Form.Control.Feedback type="invalid">
+                  This field is required!
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
             <Col>
@@ -119,11 +129,15 @@ function ChangePassword() {
                 <Form.Label>Confirm password</Form.Label>
                 <Form.Control
                   type="password"
+                  required
                   placeholder="Confirm your new password"
                   name="confirmPassword"
                   value={confirmPassword}
                   onChange={handleFormInput}
                 />
+                <Form.Control.Feedback type="invalid">
+                  This field is required!
+                </Form.Control.Feedback>
               </Form.Group>
             </Col>
           </Row>

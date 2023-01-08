@@ -19,15 +19,17 @@ function PersonalInfo() {
 
   const fileInput = useRef(null);
 
+  const [validated, setValidated] = useState(false);
   const [editBtnText, setEditBtnText] = useState("Edit");
   const [isSaving, setIsSaving] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [infoInputField, setInfoInputField] = useState({
     username: user.username,
+    name: user.name,
     email: "",
   });
-  const { username, email } = infoInputField;
+  const { username, name, email } = infoInputField;
 
   const handleAddFile = async (event) => {
     const avatar = event.target.files[0];
@@ -57,6 +59,7 @@ function PersonalInfo() {
     setInfoInputField({
       ...infoInputField,
       username: user.username,
+      name: user.name,
       email: "",
     });
     setIsEditable(false);
@@ -66,17 +69,19 @@ function PersonalInfo() {
   const handleEditInfo = async (e) => {
     e.preventDefault();
     if (editBtnText === "Edit") {
+      setValidated(false);
       setIsEditable(true);
       setEditBtnText("Save");
       return;
     }
     //validation
-    if (username.trim() === "") {
+    setValidated(true);
+    if (username.trim() === "" || name.trim() === "") {
       console.log("Can't leave empty field!");
       return;
     }
     setIsSaving(true);
-    const res = await updateUserInfo({ username });
+    const res = await updateUserInfo({ username, name });
     setIsSaving(false);
     if (res.success) {
       console.log("updated user info");
@@ -128,7 +133,7 @@ function PersonalInfo() {
             )}
           </div>
           <p className="text-center mt-2 mb-1">
-            <strong>{user.username}</strong>
+            <strong>{user.name}</strong>
           </p>
           <div className="d-flex justify-content-center mt-2">
             <div>
@@ -175,17 +180,36 @@ function PersonalInfo() {
             Personal information
           </p>
 
-          <Form onSubmit={handleEditInfo}>
+          <Form onSubmit={handleEditInfo} noValidate validated={validated}>
             <Form.Group>
               <Form.Label className="mt-2">Username</Form.Label>
               <Form.Control
                 type="text"
+                required
                 placeholder="Username"
                 name="username"
                 value={username}
                 onChange={handleFormInput}
                 disabled={!isEditable}
               />
+              <Form.Control.Feedback type="invalid">
+                This field is required!
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label className="mt-2">Name</Form.Label>
+              <Form.Control
+                type="text"
+                required
+                placeholder="Name"
+                name="name"
+                value={name}
+                onChange={handleFormInput}
+                disabled={!isEditable}
+              />
+              <Form.Control.Feedback type="invalid">
+                This field is required!
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Label className="mt-2">Email</Form.Label>

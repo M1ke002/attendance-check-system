@@ -12,7 +12,7 @@ import AlertMessage from "../layout/AlertMessage";
 function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [userForm, setUserForm] = useState({
-    username: "Mitty",
+    username: "mitty",
     password: "1234",
   });
   const { loginUser } = useContext(authContext);
@@ -72,7 +72,7 @@ function LoginForm() {
                 <Form.Label>Username</Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="username"
+                  placeholder="Username"
                   name="username"
                   required
                   value={username}
@@ -83,7 +83,7 @@ function LoginForm() {
                 <Form.Label>Password</Form.Label>
                 <Form.Control
                   type="password"
-                  placeholder="password"
+                  placeholder="Password"
                   name="password"
                   required
                   value={password}

@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext, useCallback, useMemo } from "react";
-import { alpha, styled } from "@mui/material/styles";
-import { DataGrid, GridActionsCellItem, gridClasses } from "@mui/x-data-grid";
+import { GridActionsCellItem } from "@mui/x-data-grid";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import EnrolledStudentsTableToolbar from "./EnrolledStudentsTableToolbar";
 import { attendanceContext } from "../../contexts/AttendanceContext";
@@ -8,6 +7,7 @@ import { studentContext } from "../../contexts/StudentContext";
 import { courseContext } from "../../contexts/CourseContext";
 import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
 import { toast } from "react-toastify";
+import { StripedDataGrid } from "../../utils/TableStyle";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -17,41 +17,6 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-
-const ODD_OPACITY = 0.2;
-
-const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
-  [`& .${gridClasses.row}.even`]: {
-    backgroundColor: theme.palette.grey[200],
-    "&:hover, &.Mui-hovered": {
-      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
-      "@media (hover: none)": {
-        backgroundColor: "transparent",
-      },
-    },
-    "&.Mui-selected": {
-      backgroundColor: alpha(
-        theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity
-      ),
-      "&:hover, &.Mui-hovered": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          ODD_OPACITY +
-            theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity
-        ),
-        // Reset on touch devices, it doesn't add specificity
-        "@media (hover: none)": {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity
-          ),
-        },
-      },
-    },
-  },
-}));
 
 function EnrolledStudentsTable({ course }) {
   const {

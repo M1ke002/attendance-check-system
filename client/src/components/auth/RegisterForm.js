@@ -13,6 +13,7 @@ function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [userForm, setUserForm] = useState({
     username: "",
+    name: "",
     password: "",
     confirmPassword: "",
   });
@@ -23,7 +24,7 @@ function RegisterForm() {
     type: "",
   });
 
-  const { username, password, confirmPassword } = userForm;
+  const { username, name, password, confirmPassword } = userForm;
 
   const changeFormValue = (e) => {
     setUserForm({
@@ -82,10 +83,21 @@ function RegisterForm() {
               <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="username"
+                placeholder="Username"
                 name="username"
                 required
                 value={username}
+                onChange={changeFormValue}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Your name (will be displayed)"
+                name="name"
+                required
+                value={name}
                 onChange={changeFormValue}
               />
             </Form.Group>
@@ -93,7 +105,7 @@ function RegisterForm() {
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="password"
+                placeholder="Password"
                 name="password"
                 required
                 value={password}
@@ -104,7 +116,7 @@ function RegisterForm() {
               <Form.Label>Confirm password</Form.Label>
               <Form.Control
                 type="password"
-                placeholder="confirm password"
+                placeholder="Confirm password"
                 name="confirmPassword"
                 required
                 value={confirmPassword}

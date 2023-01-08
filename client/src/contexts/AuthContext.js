@@ -109,7 +109,6 @@ function AuthContext({ children }) {
     }
   };
 
-  //TODO: clear attendance and others... when logout (WHY VALID DROPDOWN STILL APPEARS)
   const logoutUser = () => {
     localStorage.removeItem(ACCESS_TOKEN_NAME);
     setTokenHeader(null);

@@ -22,13 +22,13 @@ const upload = multer({ storage: storage });
 //@desc edit profile
 //@accessability private
 router.put("/", verifyToken, async (req, res) => {
-  const { username } = req.body;
+  const { username, name } = req.body;
 
   //validation
-  if (!username)
+  if (!username || !name)
     return res
       .status(400)
-      .json({ success: false, message: "Missing username" });
+      .json({ success: false, message: "Missing username or name" });
 
   //check for existing username
   try {
@@ -41,6 +41,7 @@ router.put("/", verifyToken, async (req, res) => {
     //update
     let updatedUser = {
       username,
+      name,
     };
     updatedUser = await User.findOneAndUpdate(
       { _id: req.userId },
@@ -50,7 +51,12 @@ router.put("/", verifyToken, async (req, res) => {
     res.json({
       success: true,
       message: "Profile updated successfully",
-      user: updatedUser,
+      user: {
+        _id: updatedUser._id,
+        username: updatedUser.username,
+        name: updatedUser.name,
+        avatar: updatedUser.avatar,
+      },
     });
   } catch (error) {
     console.log(error);

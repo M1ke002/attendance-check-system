@@ -1,5 +1,4 @@
-import { DataGrid, GridActionsCellItem, gridClasses } from "@mui/x-data-grid";
-import { alpha, styled } from "@mui/material/styles";
+import { GridActionsCellItem } from "@mui/x-data-grid";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +8,7 @@ import CoursesTableToolbar from "./CoursesTableToolbar";
 import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
 import EditCourseModal from "../layout/Modal/EditCourseModal";
 import { toast } from "react-toastify";
+import { StripedHoverDataGrid } from "../../utils/TableStyle";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 
@@ -19,81 +19,6 @@ import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import ClassIcon from "@mui/icons-material/Class";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import NumbersIcon from "@mui/icons-material/Numbers";
-
-const ODD_OPACITY = 0.2;
-
-const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
-  [`& .${gridClasses.row}.even`]: {
-    backgroundColor: theme.palette.grey[200],
-    "&:hover, &.Mui-hovered": {
-      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
-      "@media (hover: none)": {
-        backgroundColor: "transparent",
-      },
-    },
-    "&.Mui-selected": {
-      backgroundColor: alpha(
-        theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity
-      ),
-      "&:hover, &.Mui-hovered": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          ODD_OPACITY +
-            theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity
-        ),
-        // Reset on touch devices, it doesn't add specificity
-        "@media (hover: none)": {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity
-          ),
-        },
-      },
-    },
-    cursor: "pointer",
-  },
-  [`& .${gridClasses.row}.odd`]: {
-    cursor: "pointer",
-  },
-}));
-//   {
-//     id: 1,
-//     _id: 0,
-//     name: "Object Oriented Programming",
-//     code: "OOP",
-//     year: "2022",
-//   },
-//   {
-//     id: 2,
-//     _id: 0,
-//     name: "Object Oriented Programming",
-//     code: "OOP",
-//     year: "2022",
-//   },
-//   {
-//     id: 3,
-//     _id: 0,
-//     name: "Object Oriented Programming",
-//     code: "OOP",
-//     year: "2022",
-//   },
-//   {
-//     id: 4,
-//     _id: 0,
-//     name: "Object Oriented Programming",
-//     code: "OOP",
-//     year: "2022",
-//   },
-//   {
-//     id: 5,
-//     _id: 0,
-//     name: "Object Oriented Programming",
-//     code: "OOP",
-//     year: "2022",
-//   },
-// ];
 
 function CourseTable() {
   const navigate = useNavigate();
@@ -255,7 +180,7 @@ function CourseTable() {
       <h4 style={{ textAlign: "center", paddingTop: "3rem" }}>All courses</h4>
       <hr style={{ opacity: 0.15 }} />
       <div style={{ height: 570, width: "100%" }}>
-        <StripedDataGrid
+        <StripedHoverDataGrid
           rows={rows}
           columns={columns}
           getRowClassName={(params) =>

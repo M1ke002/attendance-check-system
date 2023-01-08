@@ -61,7 +61,7 @@ function NavBar() {
         </Navbar.Collapse>
         <Nav>
           <Nav.Link className="font-weight-bolder text-white me-1" disabled>
-            Welcome, {user.username}
+            Welcome, {user.name}
           </Nav.Link>
           <Tooltip title="Account settings">
             <IconButton
@@ -72,7 +72,7 @@ function NavBar() {
                 <Avatar
                   sx={{ width: 35, height: 35, bgcolor: deepPurple[500] }}
                 >
-                  {user.username.charAt(0).toUpperCase()}
+                  {user.name.charAt(0).toUpperCase()}
                 </Avatar>
               ) : (
                 <Avatar

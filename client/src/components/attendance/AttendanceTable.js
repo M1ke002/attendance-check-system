@@ -1,11 +1,10 @@
 import { useState, useMemo, useContext, useEffect } from "react";
-import { alpha, styled } from "@mui/material/styles";
-import { DataGrid, gridClasses } from "@mui/x-data-grid";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import Badge from "react-bootstrap/Badge";
 import AttendanceTableToolbar from "./AttendanceTableToolbar";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { courseContext } from "../../contexts/CourseContext";
+import { StripedDataGrid } from "../../utils/TableStyle";
 
 import NumbersIcon from "@mui/icons-material/Numbers";
 import HelpIcon from "@mui/icons-material/Help";
@@ -14,41 +13,6 @@ import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import GroupIcon from "@mui/icons-material/Group";
-
-const ODD_OPACITY = 0.2;
-
-const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
-  [`& .${gridClasses.row}.even`]: {
-    backgroundColor: theme.palette.grey[200],
-    "&:hover, &.Mui-hovered": {
-      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
-      "@media (hover: none)": {
-        backgroundColor: "transparent",
-      },
-    },
-    "&.Mui-selected": {
-      backgroundColor: alpha(
-        theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity
-      ),
-      "&:hover, &.Mui-hovered": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          ODD_OPACITY +
-            theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity
-        ),
-        // Reset on touch devices, it doesn't add specificity
-        "@media (hover: none)": {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity
-          ),
-        },
-      },
-    },
-  },
-}));
 
 const getTotalAttendanceForStudent = (studentId, course) => {
   let count = 0;

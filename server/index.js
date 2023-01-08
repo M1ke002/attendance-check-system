@@ -11,9 +11,8 @@ const profileRouter = require("./routes/profile");
 const studentsRouter = require("./routes/student");
 
 const connectDB = async () => {
-  const url = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.arykmnd.mongodb.net/?retryWrites=true&w=majority`;
   try {
-    await mongoose.connect(url);
+    await mongoose.connect(process.env.MONGO_URL);
     console.log("MongoDB connected");
   } catch (err) {
     console.log(err);

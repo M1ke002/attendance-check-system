@@ -89,8 +89,6 @@ function AttendanceCheck() {
   }, [studentId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    //TODO: remove attendanceInfo and attendanceInfo dependency?
-    if (attendanceInfo) return;
     const getData = async () => {
       setIsLoading(true);
       const res = await getAttendanceDetails(attendanceId);
@@ -103,7 +101,7 @@ function AttendanceCheck() {
       console.log(res);
     };
     getData();
-  }, [attendanceId, attendanceInfo]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [attendanceId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSelectStudent = () => {
     if (selectedStudentId === "") {
@@ -132,14 +130,37 @@ function AttendanceCheck() {
   }
 
   if (!attendanceInfo) {
-    return <h4 className="text-center">Page not found</h4>;
+    return (
+      <AlertMessage
+        data={{
+          alert: {
+            type: "light-danger",
+            message: "Page not found",
+          },
+          setAlert,
+          dismissible: false,
+          otherStyles: { margin: "11px" },
+        }}
+      />
+    );
   }
 
   if (studentId && attendanceInfo) {
-    if (getStudentInfoById(studentId, attendanceInfo.course.students) === "")
+    if (getStudentInfoById(studentId, attendanceInfo.course.students) === "") {
       return (
-        <h4 className="text-center">You are not enrolled in this course</h4>
+        <AlertMessage
+          data={{
+            alert: {
+              type: "light-danger",
+              message: "You are not enrolled in this course",
+            },
+            setAlert,
+            dismissible: false,
+            otherStyles: { margin: "11px" },
+          }}
+        />
       );
+    }
   }
 
   return (

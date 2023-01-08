@@ -1,11 +1,10 @@
-import { DataGrid, gridClasses } from "@mui/x-data-grid";
-import { alpha, styled } from "@mui/material/styles";
 import GlobalStyles from "@mui/material/GlobalStyles";
 import { useState, useContext, useMemo, useCallback } from "react";
 import { studentContext } from "../../contexts/StudentContext";
 import { courseContext } from "../../contexts/CourseContext";
 import { attendanceContext } from "../../contexts/AttendanceContext";
 import { toast } from "react-toastify";
+import { StripedHoverDataGrid } from "../../utils/TableStyle";
 import StudentsTableToolbar from "./StudentsTableToolbar";
 import Button from "react-bootstrap/Button";
 import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
@@ -19,45 +18,6 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import PermIdentityOutlinedIcon from "@mui/icons-material/PermIdentityOutlined";
 import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-
-const ODD_OPACITY = 0.3;
-
-const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
-  [`& .${gridClasses.row}.even`]: {
-    backgroundColor: theme.palette.grey[100],
-    "&:hover, &.Mui-hovered": {
-      backgroundColor: alpha(theme.palette.primary.main, ODD_OPACITY),
-      "@media (hover: none)": {
-        backgroundColor: "transparent",
-      },
-    },
-    "&.Mui-selected": {
-      backgroundColor: alpha(
-        theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity
-      ),
-      "&:hover, &.Mui-hovered": {
-        backgroundColor: alpha(
-          theme.palette.primary.main,
-          ODD_OPACITY +
-            theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity
-        ),
-        // Reset on touch devices, it doesn't add specificity
-        "@media (hover: none)": {
-          backgroundColor: alpha(
-            theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity
-          ),
-        },
-      },
-    },
-    cursor: "pointer",
-  },
-  [`& .${gridClasses.row}.odd`]: {
-    cursor: "pointer",
-  },
-}));
 
 function StudentTables() {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -237,7 +197,7 @@ function StudentTables() {
     <>
       <StudentsTableToolbar data={{ setRows }} />
       <div style={{ height: rows.length === 0 ? 340 : 370, width: "100%" }}>
-        <StripedDataGrid
+        <StripedHoverDataGrid
           rows={rows}
           columns={columns}
           disableColumnMenu={true}

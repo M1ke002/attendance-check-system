@@ -29,13 +29,13 @@ router.get("/", verifyToken, async (req, res) => {
 //@desc register user
 //@accessability public
 router.post("/register", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, name, password } = req.body;
 
   //validation
-  if (!username || !password)
+  if (!username || !name || !password)
     return res
       .status(400)
-      .json({ success: false, message: "Missing username or password" });
+      .json({ success: false, message: "Missing name, username or password" });
 
   try {
     //check if username already existed
@@ -48,7 +48,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await argon2.hash(password);
 
     //save to db
-    const user = new User({ username, password: hashedPassword });
+    const user = new User({ username, name, password: hashedPassword });
     await user.save();
 
     //create access token for user
@@ -60,6 +60,7 @@ router.post("/register", async (req, res) => {
       user: {
         _id: user._id,
         username: user.username,
+        name: user.name,
         avatar: "",
       },
     });
@@ -105,6 +106,7 @@ router.post("/login", async (req, res) => {
       user: {
         _id: user._id,
         username: user.username,
+        name: user.name,
         avatar: user.avatar,
       },
     });
