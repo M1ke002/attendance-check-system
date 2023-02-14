@@ -36,3 +36,21 @@ export const getYearRange = (year) => {
   for (let i = year - 2; i <= year + 2; i++) arr.push(i);
   return arr;
 };
+
+export const isValidTime = (time) => {
+  if (time.length >= 6) return false;
+  if (time.length >= 3 && !time.includes(":")) return false;
+  //case 30:00 -> invalid
+  if (time.length === 1 && !isNaN(time)) return parseInt(time.charAt(0)) < 3;
+  //case 24:00 -> invalid
+  if (time.length === 2 && !isNaN(time)) {
+    if (parseInt(time.charAt(0)) === 2) return parseInt(time.charAt(1)) < 4;
+    else return true;
+  }
+  if (time.length === 3) return true;
+  //case 21:60 -> invalid
+  if (time.length === 4 && !isNaN(time.charAt(3)))
+    return parseInt(time.charAt(3)) < 6;
+  if (time.length === 5) return !isNaN(time.charAt(4));
+  return false;
+};

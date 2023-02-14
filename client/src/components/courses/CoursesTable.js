@@ -3,6 +3,7 @@ import GlobalStyles from "@mui/material/GlobalStyles";
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { courseContext } from "../../contexts/CourseContext";
+import { attendanceContext } from "../../contexts/AttendanceContext";
 import Button from "react-bootstrap/Button";
 import CoursesTableToolbar from "./CoursesTableToolbar";
 import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
@@ -34,6 +35,11 @@ function CourseTable() {
     deleteCourse,
   } = useContext(courseContext);
 
+  const {
+    attendanceState: { attendance },
+    clearAttendance,
+  } = useContext(attendanceContext);
+
   useEffect(() => {
     const courseList = courses.map((course, index) => {
       return {
@@ -62,8 +68,17 @@ function CourseTable() {
   const handleDeleteCourse = async () => {
     setIsDeleting(true);
     const res = await deleteCourse(selectedCourse._id);
-    setIsDeleting(false);
+    console.log("ok", res);
     if (res.success) {
+      //if attendance is available and that attendance is included in the deleted course -> remove attendance
+      if (
+        attendance &&
+        res.course.attendances.find(
+          (attendanceId) => attendanceId === attendance._id
+        )
+      ) {
+        clearAttendance();
+      }
       toast.success(res.message, {
         theme: "colored",
         autoClose: 2000,
@@ -74,6 +89,7 @@ function CourseTable() {
         autoClose: 2000,
       });
     }
+    setIsDeleting(false);
   };
 
   const columns = [

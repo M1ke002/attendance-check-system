@@ -7,6 +7,18 @@ const attendanceSchema = new Schema({
     required: true,
     default: new Date().toLocaleDateString(), //dd-mm-yyyy
   },
+  sessionName: {
+    type: String,
+    required: true,
+  },
+  startTime: {
+    type: String,
+    required: true,
+  },
+  endTime: {
+    type: String,
+    required: true,
+  },
   records: {
     type: [
       {

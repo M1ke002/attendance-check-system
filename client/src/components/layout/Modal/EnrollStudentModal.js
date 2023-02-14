@@ -40,12 +40,15 @@ function EnrollStudentModal({ data }) {
 
   const {
     courseState: {
-      selectedCourseInfo: { course, date },
+      selectedCourseInfo: { course },
     },
     getAllCourses,
   } = useContext(courseContext);
 
-  const { getAttendance } = useContext(attendanceContext);
+  const {
+    getAttendance,
+    attendanceState: { attendance },
+  } = useContext(attendanceContext);
 
   const { studentId, name, findStudentsField, selectedStudentField } =
     studentInputField;
@@ -132,11 +135,10 @@ function EnrollStudentModal({ data }) {
     if (res.success) {
       await getAllCourses();
       //if there is a course selected at attendance page and it is same as the course in course details
-      if (course && date && course._id === currCoursePage._id) {
+      if (course && attendance && course._id === currCoursePage._id) {
         //then update the attendance as well
         await getAttendance({
-          courseId: course._id,
-          date,
+          attendanceId: attendance._id,
         });
       }
       setAlert({

@@ -9,6 +9,7 @@ import TableCell from "@mui/material/TableCell";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import GroupIcon from "@mui/icons-material/Group";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -45,19 +46,22 @@ function AttendanceHistory({ course }) {
     }
   };
 
-  const viewAttendance = async (courseId, date) => {
+  const viewAttendance = async (courseId, attendance) => {
     //set selected course info
     //get attendance
     //redirect to attendance page
     setIsLoadingAttendance(true);
     await getAttendance({
-      courseId,
-      date,
+      attendanceId: attendance._id,
     });
     setIsLoadingAttendance(false);
     getSelectedCourseInfo({
       courseId,
-      date,
+      session: {
+        date: attendance.date,
+        timeRange: [attendance.startTime, attendance.endTime],
+        sessionName: attendance.sessionName,
+      },
     });
     navigate("/attendance");
   };
@@ -75,7 +79,7 @@ function AttendanceHistory({ course }) {
       >
         <Card.Body>
           <p>
-            <strong>Attendance records</strong>
+            <strong>Session records</strong>
           </p>
           <TableContainer sx={{ maxHeight: 370, overflow: "scroll-y" }}>
             <Table>
@@ -98,6 +102,12 @@ function AttendanceHistory({ course }) {
                         <strong>Date</strong>
                       </div>
                     </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="center">
+                    <div className="d-flex justify-content-center align-items-center">
+                      <AccessTimeIcon fontSize="small" className="me-1" />
+                      <strong>Time</strong>
+                    </div>
                   </TableCell>
                   <TableCell align="center">
                     <div className="d-flex justify-content-center align-items-center">
@@ -128,6 +138,9 @@ function AttendanceHistory({ course }) {
                         {attendance.date}
                       </TableCell>
                       <TableCell align="center" style={{ padding: "0" }}>
+                        {`${attendance.startTime} - ${attendance.endTime}`}
+                      </TableCell>
+                      <TableCell align="center" style={{ padding: "0" }}>
                         {`${getTotalPresence(attendance.records)}/${
                           students.length
                         }`}
@@ -136,7 +149,7 @@ function AttendanceHistory({ course }) {
                         <Button
                           className="btn-sm"
                           variant="info"
-                          onClick={() => viewAttendance(_id, attendance.date)}
+                          onClick={() => viewAttendance(_id, attendance)}
                         >
                           View
                         </Button>
@@ -146,7 +159,7 @@ function AttendanceHistory({ course }) {
                 })}
                 {attendances.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan="4" align="center">
+                    <TableCell colSpan="5" align="center">
                       No records found
                     </TableCell>
                   </TableRow>

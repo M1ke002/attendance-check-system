@@ -34,10 +34,10 @@ function AttendanceContext({ children }) {
   }, [isAuthenticated]);
 
   const getAttendance = async (courseInfo) => {
-    const { courseId, date } = courseInfo;
+    const { attendanceId } = courseInfo;
     try {
       const res = await axios.get(
-        `${apiUrl}/attendance?courseId=${courseId}&date=${date}`
+        `${apiUrl}/attendance?attendanceId=${attendanceId}`
       );
       if (res.data.success) {
         dispatch({
@@ -86,6 +86,7 @@ function AttendanceContext({ children }) {
   };
 
   const createAttendance = async (attendanceInfo) => {
+    console.log(attendanceInfo);
     try {
       const res = await axios.post(`${apiUrl}/attendance`, attendanceInfo);
       if (res.data.success) {

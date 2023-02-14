@@ -7,25 +7,19 @@ const Attendance = require("../models/Attendance");
 
 const router = express.Router();
 
-//@route GET /api/attendance?courseId=123&date=dd/mm/yyyy
+//@route GET /api/attendance?attendanceId=123
 //@desc get attendance list for a course
 //@accessability private
 router.get("/", verifyToken, async (req, res) => {
-  const { date, courseId } = req.query;
-  if (!courseId || !date)
+  const { attendanceId } = req.query;
+  if (!attendanceId)
     return res
       .status(400)
-      .json({ success: false, message: "Missing course id/date" });
+      .json({ success: false, message: "Missing attendanceId" });
   try {
-    const course = await Course.findOne({ _id: courseId, user: req.userId });
-    if (!course)
-      return res
-        .status(400)
-        .json({ success: false, message: "Course not found" });
-    //check if attendance for course on that date already exists
-    const existedAttendance = await Attendance.findOne({
-      course: courseId,
-      date,
+    //check if the attendance for course already exists
+    const attendance = await Attendance.findOne({
+      _id: attendanceId,
       user: req.userId,
     }).populate({
       path: "records",
@@ -34,8 +28,8 @@ router.get("/", verifyToken, async (req, res) => {
       },
     });
 
-    //if no attendance existed
-    if (!existedAttendance)
+    //if no session existed
+    if (!attendance)
       return res
         .status(404)
         .json({ success: false, message: "attendance not found" });
@@ -43,7 +37,7 @@ router.get("/", verifyToken, async (req, res) => {
     return res.json({
       success: true,
       message: "attendance found",
-      attendance: existedAttendance,
+      attendance: attendance,
     });
   } catch (error) {
     console.log(error);
@@ -90,14 +84,12 @@ router.get("/details", async (req, res) => {
 });
 
 //@route POST /api/attendance
-//@desc create attendance list for a course
+//@desc create attendance list for a course (when click save data first time)
 //@accessability private
 router.post("/", verifyToken, async (req, res) => {
-  const { date, courseId, records } = req.body;
-  if (!courseId || !date || !records)
-    return res
-      .status(400)
-      .json({ success: false, message: "Missing course id/date/records" });
+  const { date, courseId, records, sessionName, startTime, endTime } = req.body;
+  if (!courseId || !date || !records || !sessionName || !startTime || !endTime)
+    return res.status(400).json({ success: false, message: "Missing data" });
   try {
     const course = await Course.findOne({ _id: courseId, user: req.userId });
     if (!course)
@@ -105,27 +97,19 @@ router.post("/", verifyToken, async (req, res) => {
         .status(400)
         .json({ success: false, message: "Course not found" });
 
-    //check if attendance for course on that date already exists
-    const existedAttendance = await Attendance.findOne({
-      course: courseId,
-      date,
-      user: req.userId,
-    });
-    if (existedAttendance)
-      return res
-        .status(400)
-        .json({ success: false, message: "attendance already exists" });
-
     //create new attendance and return it
-    const newAttendance = new Attendance({
+    const attendance = new Attendance({
       date,
       records,
       course: courseId,
+      sessionName,
+      startTime,
+      endTime,
       user: req.userId,
     });
 
     await (
-      await newAttendance.save()
+      await attendance.save()
     ).populate({
       path: "records",
       populate: {
@@ -134,12 +118,12 @@ router.post("/", verifyToken, async (req, res) => {
     });
 
     //push new attendance id to course.attendances
-    course.attendances.push(newAttendance._id);
+    course.attendances.push(attendance._id);
     await course.save();
     res.json({
       success: true,
       message: "attendance created",
-      attendance: newAttendance,
+      attendance,
     });
   } catch (error) {
     console.log(error);
@@ -148,20 +132,31 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 //@route PUT /api/attendance/attendanceId
-//@desc edit attendance for enrolled students in a course (when click save data)
+//@desc edit existing attendance for enrolled students in a course (when click save data)
 //@accessability private
 router.put("/:attendanceId", verifyToken, async (req, res) => {
-  const { records } = req.body; //only allow update records, not date atm
+  const { records, date, sessionName, startTime, endTime } = req.body;
   const attendanceId = req.params.attendanceId;
 
-  if (!records || !attendanceId)
+  if (
+    !records ||
+    !attendanceId ||
+    !date ||
+    !sessionName ||
+    !startTime ||
+    !endTime
+  )
     return res
       .status(400)
-      .json({ success: false, message: "Missing records/attendanceId" });
+      .json({ success: false, message: "Missing data for update attendance" });
   try {
     //update attendance
     let updatedAttendance = {
       records,
+      date,
+      sessionName,
+      startTime,
+      endTime,
     };
     const filterAttendance = { _id: attendanceId, user: req.userId };
     updatedAttendance = await Attendance.findOneAndUpdate(

@@ -26,12 +26,15 @@ function StudentTables() {
   const [pageSize, setPageSize] = useState(10);
   const [rows, setRows] = useState([]);
 
-  const { getAttendance } = useContext(attendanceContext);
+  const {
+    getAttendance,
+    attendanceState: { attendance },
+  } = useContext(attendanceContext);
   const {
     getAllCourses,
     courseState: { selectedCourseInfo },
   } = useContext(courseContext);
-  const { course: selectedCourse, date } = selectedCourseInfo;
+  const { course: selectedCourse } = selectedCourseInfo;
   const {
     studentState: { selectedStudent },
     getSelectedStudent,
@@ -75,14 +78,13 @@ function StudentTables() {
         //if there is selected course and date and the selected course is in the list of courses student enrolled in -> get attendance
         if (
           selectedCourse &&
-          date &&
+          attendance &&
           selectedStudent.courseIds.find(
             (courseId) => courseId === selectedCourse._id
           )
         )
           await getAttendance({
-            courseId: selectedCourse._id,
-            date,
+            attendanceId: attendance._id,
           });
       }
       console.log("deleted student");

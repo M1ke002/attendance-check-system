@@ -35,12 +35,15 @@ function AddStudentModal({ data }) {
   const { name, studentId, selectedCourseId } = inputField;
 
   const { addStudent, enrollStudentForCourse } = useContext(studentContext);
-  const { getAttendance } = useContext(attendanceContext);
+  const {
+    attendanceState: { attendance },
+    getAttendance,
+  } = useContext(attendanceContext);
   const {
     courseState: { courses, isCourseLoading, selectedCourseInfo },
     getAllCourses,
   } = useContext(courseContext);
-  const { course, date } = selectedCourseInfo;
+  const { course } = selectedCourseInfo;
 
   const onCloseModal = () => {
     if (isAdding) return;
@@ -87,10 +90,9 @@ function AddStudentModal({ data }) {
         });
         if (res.success) {
           await getAllCourses();
-          if (course && date && course._id === selectedCourseId)
+          if (course && attendance && course._id === selectedCourseId)
             await getAttendance({
-              courseId: course._id,
-              date,
+              attendanceId: attendance._id,
             });
           console.log("added student and enrolled");
         } else {

@@ -21,7 +21,7 @@ import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 function EnrolledStudentsTable({ course }) {
   const {
     courseState: {
-      selectedCourseInfo: { course: selectedCourse, date: selectedDate },
+      selectedCourseInfo: { course: selectedCourse },
     },
     getAllCourses,
   } = useContext(courseContext);
@@ -31,7 +31,10 @@ function EnrolledStudentsTable({ course }) {
     removeMultipleStudentsFromCourse,
     removeStudentFromCourse,
   } = useContext(studentContext);
-  const { getAttendance } = useContext(attendanceContext);
+  const {
+    getAttendance,
+    attendanceState: { attendance },
+  } = useContext(attendanceContext);
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
@@ -78,10 +81,9 @@ function EnrolledStudentsTable({ course }) {
     console.log(res);
     if (res.success) {
       await getAllCourses();
-      if (selectedCourse && selectedDate && selectedCourse._id === _id) {
+      if (selectedCourse && attendance && selectedCourse._id === _id) {
         await getAttendance({
-          courseId: selectedCourse._id,
-          date: selectedDate,
+          attendanceId: attendance._id,
         });
       }
       toast.success(res.message, {

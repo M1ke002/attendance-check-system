@@ -23,9 +23,14 @@ function AttendanceTableToolbar(props) {
     createAttendance,
     updateAttendance,
     setAttendanceValid,
-    course,
-    date,
+    selectedCourseInfo,
   } = attendanceData;
+
+  const { course, session } = selectedCourseInfo;
+
+  const date = session?.date;
+  const timeRange = session?.timeRange;
+  const sessionName = session?.sessionName;
 
   const [showQRCodeModal, setShowQRCodeModal] = useState(false);
   const [isSavingData, setIsSavingData] = useState(false);
@@ -34,8 +39,8 @@ function AttendanceTableToolbar(props) {
   const [isLoadingQR, setIsLoadingQR] = useState(false);
 
   const checkCourseSelected = () => {
-    if (!course || !date) {
-      console.log("missing course date!");
+    if (!course || !session) {
+      console.log("missing course!");
       toast.error("Go to a course first!", {
         theme: "colored",
         autoClose: 2000,
@@ -51,8 +56,7 @@ function AttendanceTableToolbar(props) {
       setIsChanging(true);
       const res = await setAttendanceValid(attendance._id, valid);
       await getAttendance({
-        courseId: course._id,
-        date,
+        attendanceId: attendance._id,
       });
       // await getAllCourses();
       console.log(res);
@@ -79,6 +83,9 @@ function AttendanceTableToolbar(props) {
       const attendanceData = {
         records,
         date,
+        sessionName,
+        startTime: timeRange[0],
+        endTime: timeRange[1],
         courseId: course._id,
       };
       setIsLoadingQR(true);
@@ -91,12 +98,13 @@ function AttendanceTableToolbar(props) {
   };
 
   const refreshAttendance = async () => {
-    if (!course || !date) return;
+    if (!course || !session) return;
     setIsRefreshing(true);
-    await getAttendance({
-      courseId: course._id,
-      date,
-    });
+    if (attendance) {
+      await getAttendance({
+        attendanceId: attendance._id,
+      });
+    }
     await getAllCourses();
     setIsRefreshing(false);
   };
@@ -122,8 +130,8 @@ function AttendanceTableToolbar(props) {
     setIsSavingData(true);
     if (attendance) {
       const attendanceData = {
+        ...attendance,
         records,
-        _id: attendance._id,
       };
       const res = await updateAttendance(attendanceData);
       console.log(res);
@@ -132,6 +140,9 @@ function AttendanceTableToolbar(props) {
       const attendanceData = {
         records,
         date,
+        sessionName,
+        startTime: timeRange[0],
+        endTime: timeRange[1],
         courseId: course._id,
       };
       const res = await createAttendance(attendanceData);
@@ -190,7 +201,7 @@ function AttendanceTableToolbar(props) {
               <Button
                 style={{ height: "38px" }}
                 className="d-inline-flex align-items-center justify-content-center"
-                disabled={!course || !date}
+                disabled={!course || !session}
                 onClick={refreshAttendance}
               >
                 {isRefreshing ? (

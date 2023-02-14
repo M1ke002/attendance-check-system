@@ -30,7 +30,7 @@ const courseReducer = (state, action) => {
         courses: [],
         selectedCourseInfo: {
           course: null,
-          date: null,
+          session: null,
         },
       };
     case ADD_COURSE:
@@ -66,7 +66,7 @@ const courseReducer = (state, action) => {
         selectedCourseInfo = {
           ...selectedCourseInfo,
           course: null,
-          date: null,
+          session: null,
         };
       }
       return {

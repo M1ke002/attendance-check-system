@@ -1,8 +1,10 @@
 import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import ClearIcon from "@mui/icons-material/Clear";
+import InfoIcon from "@mui/icons-material/Info";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+import Tooltip from "@mui/material/Tooltip";
 import { toast } from "react-toastify";
 
 import { useState } from "react";
@@ -11,13 +13,15 @@ import { attendanceContext } from "../../contexts/AttendanceContext";
 import { getDayOfWeek } from "../../utils/utilsFunction";
 import { useContext } from "react";
 import ConfirmDeleteModal from "./Modal/ConfirmDeleteModal";
+import EditSessionModal from "./Modal/EditSessionModal";
 
 function NoticeMessage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [showEditSessionModal, setShowEditSessionModal] = useState(false);
   const {
     courseState: {
-      selectedCourseInfo: { course, date },
+      selectedCourseInfo: { course, session },
     },
     clearSelectedCourseInfo,
     getAllCourses,
@@ -52,7 +56,7 @@ function NoticeMessage() {
     });
   };
 
-  if (!course || !date) return null;
+  if (!course || !session) return null;
 
   return (
     <>
@@ -68,12 +72,25 @@ function NoticeMessage() {
         variant="light-success"
         className="d-flex align-items-center justify-content-between text-black"
       >
-        <h5 style={{ color: "#336239", marginBottom: "0" }}>
+        <h5
+          style={{ color: "#336239", marginBottom: "0" }}
+          className="d-flex align-items-center justify-content-center"
+        >
           Attendance for course {course.courseCode} - {course.year} on{" "}
-          {getDayOfWeek(date)}, {date}{" "}
-          <span className="ms-1 fs-6 text-dark">
-            ({attendance ? "existing record" : "new record"})
-          </span>
+          {getDayOfWeek(session.date)}, {session.date}{" "}
+          {!attendance && (
+            <span className="ms-1 fs-6 text-dark">(not saved)</span>
+          )}
+          <Tooltip title="session info" placement="top">
+            <Button
+              style={{ marginLeft: "15px" }}
+              className="d-flex align-items-center"
+              variant="primary"
+              onClick={() => setShowEditSessionModal(true)}
+            >
+              <InfoIcon fontSize="small" style={{ color: "white" }} />
+            </Button>
+          </Tooltip>
         </h5>
         <Button
           variant="link"
@@ -84,13 +101,23 @@ function NoticeMessage() {
           <ClearIcon fontSize="small" />
         </Button>
       </Alert>
+      <EditSessionModal
+        data={{
+          showEditSessionModal,
+          setShowEditSessionModal,
+          sessionInfo: {
+            ...session,
+            courseInfo: `${course.name} - ${course.year}`,
+          },
+        }}
+      />
       <ConfirmDeleteModal
         showConfirmDeleteModal={showConfirmDeleteModal}
         onHide={() => {
           setShowConfirmDeleteModal(false);
         }}
         message={{
-          body: isLoading ? "Deleting..." : "Delete this attendance?",
+          body: isLoading ? "Deleting..." : "Delete this session?",
           footer: "Delete",
         }}
         onDelete={async () => {

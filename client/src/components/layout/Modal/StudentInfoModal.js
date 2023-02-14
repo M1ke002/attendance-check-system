@@ -17,12 +17,15 @@ function StudentInfoModal({ data }) {
     courseState: { courses, selectedCourseInfo },
     getAllCourses,
   } = useContext(courseContext);
-  const { course: selectedCourse, date } = selectedCourseInfo;
+  const { course: selectedCourse } = selectedCourseInfo;
   const {
     studentState: { selectedStudent },
     updateStudent,
   } = useContext(studentContext);
-  const { getAttendance } = useContext(attendanceContext);
+  const {
+    getAttendance,
+    attendanceState: { attendance },
+  } = useContext(attendanceContext);
 
   const [isEditable, setIsEditable] = useState(false);
   const [editBtnText, setEditBtnText] = useState("Edit");
@@ -116,14 +119,13 @@ function StudentInfoModal({ data }) {
         //if there is selected course and date and that course is one of student's enrolled courses -> get attendance
         if (
           selectedCourse &&
-          date &&
+          attendance &&
           updatedStudent.enrolledCourses.find(
             (courseId) => courseId === selectedCourse._id
           )
         )
           await getAttendance({
-            courseId: selectedCourse._id,
-            date,
+            attendanceId: attendance._id,
           });
       }
       console.log("updated student");

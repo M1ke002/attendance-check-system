@@ -25,14 +25,17 @@ function UploadFileModal({ data }) {
 
   const {
     courseState: {
-      selectedCourseInfo: { course, date },
+      selectedCourseInfo: { course },
     },
     getAllCourses,
   } = useContext(courseContext);
 
   const { enrollMultipleStudentsForCourse } = useContext(studentContext);
 
-  const { getAttendance } = useContext(attendanceContext);
+  const {
+    getAttendance,
+    attendanceState: { attendance },
+  } = useContext(attendanceContext);
 
   const wrapperRef = useRef(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -119,10 +122,9 @@ function UploadFileModal({ data }) {
     if (res.success && res.students.length > 0) {
       await getAllCourses();
       //if there is a course selected at attendance page and it is same as the course in course details
-      if (course && date && course._id === currCoursePage._id) {
+      if (course && attendance && course._id === currCoursePage._id) {
         await getAttendance({
-          courseId: course._id,
-          date,
+          attendanceId: attendance._id,
         });
       }
       toast.success(res.message, {

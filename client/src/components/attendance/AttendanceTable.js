@@ -40,7 +40,9 @@ function AttendanceTable() {
     getAllCourses,
   } = useContext(courseContext);
 
-  const { course, date } = selectedCourseInfo;
+  const { course, session } = selectedCourseInfo;
+
+  const date = session ? session.date : null;
 
   const [pageSize, setPageSize] = useState(10);
   const [rows, setRows] = useState([]);
@@ -291,8 +293,7 @@ function AttendanceTable() {
                 createAttendance,
                 updateAttendance,
                 setAttendanceValid,
-                course,
-                date,
+                selectedCourseInfo,
               },
               getAllCourses,
             },

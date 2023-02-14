@@ -2,21 +2,36 @@ import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
-import { convertDateFormat } from "./utilsFunction";
-import { useState } from "react";
+import { courseContext } from "../../../contexts/CourseContext";
+import { attendanceContext } from "../../../contexts/AttendanceContext";
+import { convertDateFormat, isValidTime } from "../../../utils/utilsFunction";
+import { useState, useContext } from "react";
 
-function EditSessionModal() {
+function AddSessionModal({ data }) {
+  const { showAddSessionModal, setShowAddSessionModal, course } = data;
+  const { getSelectedCourseInfo } = useContext(courseContext);
+  const { clearAttendance } = useContext(attendanceContext);
   const [inputField, setInputField] = useState({
-    className: "Python programming",
+    sessionName: "",
     date: null,
-    timeStart: "08:30",
-    timeEnd: "11:30",
+    startTime: "",
+    endTime: "",
   });
 
-  const { className, date, timeStart, timeEnd } = inputField;
+  const { sessionName, date, startTime, endTime } = inputField;
+
+  const onCloseModal = () => {
+    setShowAddSessionModal(false);
+    setInputField({
+      sessionName: "",
+      date: null,
+      startTime: "",
+      endTime: "",
+    });
+  };
 
   const handleChangeTimeInput = (e, type, timeLength) => {
-    console.log(e.target.value, type);
+    // console.log(e.target.value, type);
     let newTime = e.target.value.trim();
     if (newTime === "") {
       //when delete
@@ -41,24 +56,6 @@ function EditSessionModal() {
     }
   };
 
-  const isValidTime = (time) => {
-    if (time.length >= 6) return false;
-    if (time.length >= 3 && !time.includes(":")) return false;
-    //case 30:00 -> invalid
-    if (time.length === 1 && !isNaN(time)) return parseInt(time.charAt(0)) < 3;
-    //case 24:00 -> invalid
-    if (time.length === 2 && !isNaN(time)) {
-      if (parseInt(time.charAt(0)) === 2) return parseInt(time.charAt(1)) < 4;
-      else return true;
-    }
-    if (time.length === 3) return true;
-    //case 21:60 -> invalid
-    if (time.length === 4 && !isNaN(time.charAt(3)))
-      return parseInt(time.charAt(3)) < 6;
-    if (time.length === 5) return !isNaN(time.charAt(4));
-    return false;
-  };
-
   const handleBlurTimeInput = (e, type) => {
     let time = e.target.value;
     if (time.length < 3)
@@ -75,18 +72,39 @@ function EditSessionModal() {
     }
   };
 
+  //create new attendance
+  const handleCreateClass = async (e) => {
+    e.preventDefault();
+    //validate input field
+    if (sessionName === "" || !date || startTime === "" || endTime === "") {
+      console.log("missing input");
+      return;
+    }
+    clearAttendance();
+    getSelectedCourseInfo({
+      //to display the draft attendance
+      courseId: course._id,
+      session: {
+        date,
+        timeRange: [startTime, endTime],
+        sessionName,
+      },
+    });
+    onCloseModal();
+  };
+
   return (
-    <Modal show={true} centered>
+    <Modal show={showAddSessionModal} centered onHide={onCloseModal}>
       <Modal.Header closeButton>
-        <Modal.Title>Session Information</Modal.Title>
+        <Modal.Title>New session</Modal.Title>
       </Modal.Header>
-      <Form>
+      <Form onSubmit={handleCreateClass}>
         <Modal.Body>
           <Form.Group>
             <Form.Label>Course name</Form.Label>
             <Form.Control
               type="text"
-              value="Python programming - 2023"
+              value={`${course.name} - ${course.year}`}
               disabled
             />
           </Form.Group>
@@ -94,13 +112,13 @@ function EditSessionModal() {
             <Form.Label className="mt-2">Session name</Form.Label>
             <Form.Control
               type="text"
-              name="className"
+              name="sessionName"
               placeholder="Session name"
-              value={className}
+              value={sessionName}
               onChange={(e) =>
                 setInputField({
                   ...inputField,
-                  className: e.target.value,
+                  sessionName: e.target.value,
                 })
               }
             />
@@ -109,7 +127,6 @@ function EditSessionModal() {
             <Form.Label className="mt-2">Date</Form.Label>
             <Form.Control
               type="date"
-              value="2023-05-22"
               onChange={(e) => {
                 setInputField({
                   ...inputField,
@@ -128,22 +145,22 @@ function EditSessionModal() {
             <Form.Control
               type="text"
               placeholder="08:30"
-              value={timeStart}
+              value={startTime}
               onChange={(event) =>
-                handleChangeTimeInput(event, "timeStart", timeStart.length)
+                handleChangeTimeInput(event, "startTime", startTime.length)
               }
-              onBlur={(event) => handleBlurTimeInput(event, "timeStart")}
+              onBlur={(event) => handleBlurTimeInput(event, "startTime")}
               style={{ width: "68px", marginRight: "10px" }}
             />
             to
             <Form.Control
               type="text"
               placeholder="11:30"
-              value={timeEnd}
+              value={endTime}
               onChange={(event) =>
-                handleChangeTimeInput(event, "timeEnd", timeEnd.length)
+                handleChangeTimeInput(event, "endTime", endTime.length)
               }
-              onBlur={(event) => handleBlurTimeInput(event, "timeEnd")}
+              onBlur={(event) => handleBlurTimeInput(event, "endTime")}
               style={{ width: "68px", marginLeft: "10px" }}
             />
           </div>
@@ -160,13 +177,15 @@ function EditSessionModal() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="info" type="submit">
-            Update
+            Add
           </Button>
-          <Button variant="danger">Close</Button>
+          <Button variant="danger" onClick={onCloseModal}>
+            Cancel
+          </Button>
         </Modal.Footer>
       </Form>
     </Modal>
   );
 }
 
-export default EditSessionModal;
+export default AddSessionModal;

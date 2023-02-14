@@ -19,7 +19,7 @@ function CourseContext({ children }) {
     courses: [],
     selectedCourseInfo: {
       course: null,
-      date: null,
+      session: null,
     },
     isCourseLoading: true,
   });
@@ -78,7 +78,8 @@ function CourseContext({ children }) {
   };
 
   const getSelectedCourseInfo = (courseInfo) => {
-    const { courseId, date, newCourses } = courseInfo;
+    const { courseId, session, newCourses } = courseInfo;
+    console.log("info", courseId);
     let courses = newCourses ? newCourses : courseState.courses;
     // console.log("tt", courseState.courses);
     const selectedCourse = courses.find((course) => course._id === courseId);
@@ -88,7 +89,7 @@ function CourseContext({ children }) {
       payload: {
         selectedCourseInfo: {
           course: selectedCourse ? selectedCourse : null,
-          date,
+          session,
         },
       },
     });
@@ -100,7 +101,7 @@ function CourseContext({ children }) {
       payload: {
         selectedCourseInfo: {
           course: null,
-          date: null,
+          session: null,
         },
       },
     });
