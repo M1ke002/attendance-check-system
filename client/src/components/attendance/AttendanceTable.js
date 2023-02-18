@@ -48,50 +48,6 @@ function AttendanceTable() {
   const [rows, setRows] = useState([]);
   const [selectionModel, setSelectionModel] = useState([]);
 
-  // useEffect(() => {
-  //   console.log("rerender");
-  //   if (attendance && course && date) {
-  //     const attendanceList = attendance.records.map((record, index) => {
-  //       return {
-  //         id: index + 1,
-  //         _id: record.student._id,
-  //         status: record.present ? "present" : "absent",
-  //         studentId: record.student.studentId,
-  //         name: record.student.name,
-  //         course: course.name,
-  //         date: attendance.date,
-  //         attendance: getTotalAttendanceForStudent(record.student._id, course),
-  //       };
-  //     });
-  //     setRows(attendanceList);
-
-  //     setSelectionModel(
-  //       attendanceList
-  //         .filter((row) => row.status === "present")
-  //         .map((row) => row.id)
-  //     );
-  //   } else if (course && date) {
-  //     //generate attendance draft, status: not set
-  //     const attendanceList = course.students.map((student, index) => {
-  //       return {
-  //         id: index + 1,
-  //         _id: student._id,
-  //         status: "not set",
-  //         studentId: student.studentId,
-  //         name: student.name,
-  //         course: course.name,
-  //         date,
-  //         attendance: getTotalAttendanceForStudent(student._id, course),
-  //       };
-  //     });
-  //     setRows(attendanceList);
-  //     setSelectionModel([]);
-  //   } else {
-  //     //empty rows
-  //     if (rows.length > 0) setRows([]);
-  //   }
-  // }, [attendance, course, date]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const attendanceList = useMemo(() => {
     if (attendance && course && date) {
       return attendance.records.map((record, index) => {

@@ -1,16 +1,26 @@
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import AlertMessage from "../AlertMessage";
 
 import { courseContext } from "../../../contexts/CourseContext";
 import { attendanceContext } from "../../../contexts/AttendanceContext";
-import { convertDateFormat, isValidTime } from "../../../utils/utilsFunction";
+import {
+  convertDateFormat,
+  isValidTime,
+  validateTimeRange,
+} from "../../../utils/utilsFunction";
 import { useState, useContext } from "react";
 
 function AddSessionModal({ data }) {
   const { showAddSessionModal, setShowAddSessionModal, course } = data;
   const { getSelectedCourseInfo } = useContext(courseContext);
   const { clearAttendance } = useContext(attendanceContext);
+  const [alert, setAlert] = useState({
+    message: "",
+    show: false,
+    type: "",
+  });
   const [inputField, setInputField] = useState({
     sessionName: "",
     date: null,
@@ -28,6 +38,7 @@ function AddSessionModal({ data }) {
       startTime: "",
       endTime: "",
     });
+    setAlert({ ...alert, show: false });
   };
 
   const handleChangeTimeInput = (e, type, timeLength) => {
@@ -78,6 +89,22 @@ function AddSessionModal({ data }) {
     //validate input field
     if (sessionName === "" || !date || startTime === "" || endTime === "") {
       console.log("missing input");
+      setAlert({
+        ...alert,
+        message: "Can't leave empty field",
+        show: true,
+        type: "light-danger",
+      });
+      return;
+    }
+    if (!validateTimeRange(startTime, endTime)) {
+      console.log("Invalid time range");
+      setAlert({
+        ...alert,
+        message: "Invalid time range",
+        show: true,
+        type: "light-danger",
+      });
       return;
     }
     clearAttendance();
@@ -165,7 +192,7 @@ function AddSessionModal({ data }) {
             />
           </div>
 
-          {/* {alert.show && (
+          {alert.show && (
             <AlertMessage
               data={{
                 alert,
@@ -173,7 +200,7 @@ function AddSessionModal({ data }) {
                 otherStyles: { margin: "11px 0 -4px" },
               }}
             />
-          )} */}
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="info" type="submit">

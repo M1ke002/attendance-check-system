@@ -3,7 +3,11 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import AlertMessage from "../AlertMessage";
 
-import { convertDateFormat, isValidTime } from "../../../utils/utilsFunction";
+import {
+  convertDateFormat,
+  isValidTime,
+  validateTimeRange,
+} from "../../../utils/utilsFunction";
 import { useState, useEffect, useContext } from "react";
 import { courseContext } from "../../../contexts/CourseContext";
 import { attendanceContext } from "../../../contexts/AttendanceContext";
@@ -116,6 +120,16 @@ function EditSessionModal({ data }) {
       setAlert({
         ...alert,
         message: "Can't leave empty field",
+        show: true,
+        type: "light-danger",
+      });
+      return;
+    }
+    if (!validateTimeRange(startTime, endTime)) {
+      console.log("Invalid time range");
+      setAlert({
+        ...alert,
+        message: "Invalid time range",
         show: true,
         type: "light-danger",
       });

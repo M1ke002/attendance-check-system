@@ -385,6 +385,40 @@ router.put("/:id", verifyToken, async (req, res) => {
   }
 });
 
+//@route DELETE /api/students
+//@desc delete all students in the database
+//@accessability private
+router.delete("/", verifyToken, async (req, res) => {
+  try {
+    //delete all students from db
+    const result = await Student.deleteMany({
+      user: req.userId,
+    });
+    if (!result)
+      return res.status(400).json({
+        success: false,
+        message: "Error while deleting students",
+      });
+
+    //set all courses 'students' field in Course model to empty array
+    await Course.updateMany({ user: req.userId }, { $set: { students: [] } });
+
+    //set all attendances 'records' field in Attendance model to empty array
+    await Attendance.updateMany(
+      { user: req.userId },
+      { $set: { records: [] } }
+    );
+    res.json({
+      success: true,
+      message: `${result.deletedCount} student(s) deleted`,
+      result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 //@route DELETE /api/students/:id
 //@desc delete student
 //@accessability private

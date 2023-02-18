@@ -77,6 +77,24 @@ function StudentContext({ children }) {
     }
   };
 
+  const deleteAllStudents = async () => {
+    try {
+      const res = await axios.delete(`${apiUrl}/students`);
+      if (res.data.success) {
+        dispatch({
+          type: DELETE_STUDENT,
+          payload: {
+            foundStudents: [],
+          },
+        });
+      }
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
   const updateStudent = async (studentInfo) => {
     try {
       const res = await axios.put(
@@ -210,6 +228,7 @@ function StudentContext({ children }) {
     findStudents,
     addStudent,
     deleteStudent,
+    deleteAllStudents,
     updateStudent,
     setFoundStudents,
     studentState,

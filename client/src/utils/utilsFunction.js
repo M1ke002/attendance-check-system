@@ -54,3 +54,25 @@ export const isValidTime = (time) => {
   if (time.length === 5) return !isNaN(time.charAt(4));
   return false;
 };
+
+export const validateTimeRange = (startTime, endTime) => {
+  // Split the start and end times into hours and minutes
+  const startParts = startTime.split(":");
+  const endParts = endTime.split(":");
+
+  // Convert the hours and minutes to numbers
+  const startHour = parseInt(startParts[0], 10);
+  const startMinute = parseInt(startParts[1], 10);
+  const endHour = parseInt(endParts[0], 10);
+  const endMinute = parseInt(endParts[1], 10);
+
+  // Check if the start time is before the end time
+  if (
+    startHour < endHour ||
+    (startHour === endHour && startMinute < endMinute)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};

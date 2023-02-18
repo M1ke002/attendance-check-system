@@ -4,18 +4,24 @@ import Button from "react-bootstrap/Button";
 import { useState, useEffect, useContext } from "react";
 import { studentContext } from "../../contexts/StudentContext";
 import AddStudentModal from "../layout/Modal/AddStudentModal";
+import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
 
 import SearchIcon from "@mui/icons-material/Search";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 function StudentsTableToolbar({ data }) {
-  const { setRows } = data;
+  const { setRows, handleDeleteAllStudents } = data;
   const {
     studentState: { foundStudents },
     setFoundStudents,
   } = useContext(studentContext);
   const [searchInput, setSearchInput] = useState("");
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [
+    showConfirmDeleteAllStudentsModal,
+    setShowConfirmDeleteAllStudentsModal,
+  ] = useState(false);
 
   useEffect(() => {
     const values = searchInput.trim().toLowerCase().split(" ");
@@ -71,11 +77,19 @@ function StudentsTableToolbar({ data }) {
         </Button>
         <Button
           variant="info"
-          className="me-4 d-inline-flex justify-content-center"
+          className="me-2 d-inline-flex justify-content-center"
           style={{ width: "50px" }}
           onClick={() => setShowAddStudentModal(true)}
         >
           <PersonAddAlt1Icon fontSize="small" />
+        </Button>
+        <Button
+          variant="danger"
+          className="me-4 d-inline-flex justify-content-center"
+          style={{ width: "50px" }}
+          onClick={() => setShowConfirmDeleteAllStudentsModal(true)}
+        >
+          <DeleteIcon fontSize="small" />
         </Button>
         <TextField
           id="standard-search"
@@ -96,6 +110,23 @@ function StudentsTableToolbar({ data }) {
         />
       </div>
       <AddStudentModal data={{ showAddStudentModal, setShowAddStudentModal }} />
+      <ConfirmDeleteModal
+        showConfirmDeleteModal={showConfirmDeleteAllStudentsModal}
+        onHide={() => {
+          setShowConfirmDeleteAllStudentsModal(false);
+        }}
+        onDelete={() => {
+          handleDeleteAllStudents();
+          setShowConfirmDeleteAllStudentsModal(false);
+        }}
+        onCancel={() => {
+          setShowConfirmDeleteAllStudentsModal(false);
+        }}
+        message={{
+          body: "Delete all students in the system?",
+          footer: "Delete",
+        }}
+      />
     </>
   );
 }

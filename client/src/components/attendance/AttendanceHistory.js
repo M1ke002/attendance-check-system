@@ -9,8 +9,8 @@ import TableCell from "@mui/material/TableCell";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import GroupIcon from "@mui/icons-material/Group";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import LibraryBooksOutlinedIcon from "@mui/icons-material/LibraryBooksOutlined";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useState, useContext } from "react";
@@ -105,8 +105,11 @@ function AttendanceHistory({ course }) {
                   </TableCell>
                   <TableCell align="center">
                     <div className="d-flex justify-content-center align-items-center">
-                      <AccessTimeIcon fontSize="small" className="me-1" />
-                      <strong>Time</strong>
+                      <LibraryBooksOutlinedIcon
+                        fontSize="small"
+                        className="me-1"
+                      />
+                      <strong>Session name</strong>
                     </div>
                   </TableCell>
                   <TableCell align="center">
@@ -138,7 +141,8 @@ function AttendanceHistory({ course }) {
                         {attendance.date}
                       </TableCell>
                       <TableCell align="center" style={{ padding: "0" }}>
-                        {`${attendance.startTime} - ${attendance.endTime}`}
+                        {/* {`${attendance.startTime} - ${attendance.endTime}`} */}
+                        {`${attendance.sessionName}`}
                       </TableCell>
                       <TableCell align="center" style={{ padding: "0" }}>
                         {`${getTotalPresence(attendance.records)}/${

@@ -39,6 +39,7 @@ function StudentTables() {
     studentState: { selectedStudent },
     getSelectedStudent,
     deleteStudent,
+    deleteAllStudents,
   } = useContext(studentContext);
 
   const onRowDoubleClick = (row) => {
@@ -75,7 +76,7 @@ function StudentTables() {
       //if student enrolled in course(s) -> get all courses
       if (selectedStudent.courseIds.length > 0) {
         await getAllCourses();
-        //if there is selected course and date and the selected course is in the list of courses student enrolled in -> get attendance
+        //if there is selected course and session and the selected course is in the list of courses student enrolled in -> get attendance
         if (
           selectedCourse &&
           attendance &&
@@ -88,6 +89,31 @@ function StudentTables() {
           });
       }
       console.log("deleted student");
+      toast.success(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    } else {
+      toast.error(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    }
+    setIsDeleting(false);
+  };
+
+  const handleDeleteAllStudents = async () => {
+    setIsDeleting(true);
+    const res = await deleteAllStudents();
+    if (res.success) {
+      //get all courses
+      await getAllCourses();
+      //if there is selected course and session -> get attendance
+      if (selectedCourse && attendance)
+        await getAttendance({
+          attendanceId: attendance._id,
+        });
+      console.log("deleted all students");
       toast.success(res.message, {
         theme: "colored",
         autoClose: 2000,
@@ -197,7 +223,7 @@ function StudentTables() {
 
   return (
     <>
-      <StudentsTableToolbar data={{ setRows }} />
+      <StudentsTableToolbar data={{ setRows, handleDeleteAllStudents }} />
       <div style={{ height: rows.length === 0 ? 340 : 370, width: "100%" }}>
         <StripedHoverDataGrid
           rows={rows}
