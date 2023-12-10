@@ -29,7 +29,12 @@ function QRCodeModal({ data }) {
           <QRCode
             size={256}
             style={{ height: "100%", width: "100%" }}
-            value={`${IP}/attendance/check/${attendance?._id}`}
+            // value={`${IP}/attendance/check/${attendance?._id}`}
+            value={
+              process.env.NODE_ENV === "production"
+                ? `${process.env.DEPLOYED_URL}/attendance/check/${attendance?._id}`
+                : `${IP}/attendance/check/${attendance?._id}`
+            }
           />
         </div>
       </Modal.Body>
