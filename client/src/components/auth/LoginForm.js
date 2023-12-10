@@ -12,7 +12,7 @@ import AlertMessage from "../layout/AlertMessage";
 function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [userForm, setUserForm] = useState({
-    username: "mitty",
+    username: "mike",
     password: "1234",
   });
   const { loginUser } = useContext(authContext);

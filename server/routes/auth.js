@@ -51,7 +51,8 @@ router.post("/register", async (req, res) => {
     const user = new User({ username, name, password: hashedPassword });
     await user.save();
 
-    //create access token for user
+    //creates jwt token for user and send it back to client
+    //the payload contains the user id
     const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_KEY);
     res.json({
       success: true,
