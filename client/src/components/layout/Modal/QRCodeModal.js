@@ -1,7 +1,7 @@
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import QRCode from "react-qr-code";
-import { IP } from "../../../contexts/constants";
+import { IP, DEPLOYED_URL } from "../../../contexts/constants";
 
 function QRCodeModal({ data }) {
   const { showQRCodeModal, setShowQRCodeModal, attendance } = data;
@@ -9,6 +9,8 @@ function QRCodeModal({ data }) {
   const onCloseModal = () => {
     setShowQRCodeModal(false);
   };
+
+  console.log("process.env.DEPLOYED_URL: " + process.env.DEPLOYED_URL);
 
   return (
     <Modal show={showQRCodeModal} centered size="lg" onHide={onCloseModal}>
@@ -32,7 +34,7 @@ function QRCodeModal({ data }) {
             // value={`${IP}/attendance/check/${attendance?._id}`}
             value={
               process.env.NODE_ENV === "production"
-                ? `${process.env.DEPLOYED_URL}/attendance/check/${attendance?._id}`
+                ? `${DEPLOYED_URL}/attendance/check/${attendance?._id}`
                 : `${IP}/attendance/check/${attendance?._id}`
             }
           />

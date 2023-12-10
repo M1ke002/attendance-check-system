@@ -10,3 +10,4 @@ export const mobileApiUrl =
     : "http://" + IP_NUMBER + ":5000/api";
 export const ACCESS_TOKEN_NAME = "attendanceSystem";
 export const STUDENT_TOKEN_NAME = "student";
+export const DEPLOYED_URL = "https://attendance-check-system.vercel.app";
