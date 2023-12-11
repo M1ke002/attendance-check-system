@@ -34,18 +34,36 @@ function PersonalInfo() {
   const handleAddFile = async (event) => {
     const avatar = event.target.files[0];
     if (!avatar) return;
-    console.log(avatar);
+    // console.log(avatar);
     // preview or upload to server
     const formData = new FormData();
     formData.append("avatar", avatar);
+    setIsSaving(true);
     const res = await uploadAvatar(formData);
-    console.log(res);
+    setIsSaving(false);
+    if (res.success) {
+      toast.success(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+    }
+    // console.log(res);
   };
 
   const handleRemoveAvatar = async () => {
-    const res = await deleteAvatar();
+    setIsSaving(true);
     setShowConfirmDeleteModal(false);
-    console.log(res);
+    const res = await deleteAvatar();
+    setIsSaving(false);
+    if (res.success) {
+      toast.success(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
+      //clear file input
+      fileInput.current.value = "";
+    }
+    // console.log(res);
   };
 
   const handleFormInput = (e) => {
@@ -143,6 +161,7 @@ function PersonalInfo() {
                 onClick={() => {
                   fileInput.current.click();
                 }}
+                disabled={isSaving}
               >
                 Upload image
               </Button>
@@ -160,6 +179,7 @@ function PersonalInfo() {
               onClick={() => {
                 if (user.avatar) setShowConfirmDeleteModal(true);
               }}
+              disabled={isSaving || !user.avatar}
             >
               Remove image
             </Button>

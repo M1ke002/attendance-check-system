@@ -54,7 +54,7 @@ function AttendanceSearch() {
   } = useContext(courseContext);
 
   const { courses, isCourseLoading, selectedCourseInfo } = courseState;
-  console.log("courses: ", courses); //updated
+  // console.log("courses: ", courses); //updated
 
   const {
     getAttendance,
@@ -231,30 +231,28 @@ function AttendanceSearch() {
             }}
           />
         </Form.Group>
-        <div className="d-flex justify-content-between">
-          <div>
-            <Button
-              variant="success"
-              type="submit"
-              disabled={isLoadingAttendance}
-            >
-              {isLoadingAttendance ? "Loading session..." : "View session"}
-            </Button>
-            <Button
-              variant="danger"
-              className="ms-2"
-              disabled={isLoadingAttendance}
-              onClick={() => {
-                clearAttendance();
-                clearSelectedCourseInfo();
-              }}
-            >
-              Clear
-            </Button>
-          </div>
+        <div className="d-flex">
+          <Button
+            variant="success"
+            type="submit"
+            disabled={isLoadingAttendance}
+          >
+            {isLoadingAttendance ? "Loading session..." : "View session"}
+          </Button>
+          <Button
+            variant="danger"
+            className="ms-2 me-2"
+            disabled={isLoadingAttendance}
+            onClick={() => {
+              clearAttendance();
+              clearSelectedCourseInfo();
+            }}
+          >
+            Clear
+          </Button>
           <Button
             variant="primary"
-            className="d-inline-flex align-items-center"
+            className="d-inline-flex align-items-center ms-auto"
             onClick={() => {
               if (!courseField) {
                 console.log("Missing course");
@@ -266,7 +264,7 @@ function AttendanceSearch() {
             }}
           >
             <AddIcon fontSize="small" className="me-1" />
-            New session
+            Session
           </Button>
         </div>
       </Form>

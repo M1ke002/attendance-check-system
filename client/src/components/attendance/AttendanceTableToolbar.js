@@ -41,7 +41,7 @@ function AttendanceTableToolbar(props) {
   const checkCourseSelected = () => {
     if (!course || !session) {
       console.log("missing course!");
-      toast.error("Go to a course first!", {
+      toast.error("Select a session first!", {
         theme: "colored",
         autoClose: 2000,
       });
@@ -228,6 +228,7 @@ function AttendanceTableToolbar(props) {
                 style={{
                   backgroundColor: attendance.valid ? "#ddf3d8" : "#ffd8dc",
                   borderRadius: 20,
+                  marginRight: 15,
                 }}
                 sx={{
                   mr: 3,

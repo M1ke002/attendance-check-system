@@ -58,89 +58,89 @@ function NavBar() {
               </div>
             </Nav.Link>
           </Nav>
-        </Navbar.Collapse>
-        <Nav>
-          <Nav.Link className="font-weight-bolder text-white me-1" disabled>
-            Welcome, {user.name}
-          </Nav.Link>
-          <Tooltip title="Account settings">
-            <IconButton
-              onClick={(e) => setAnchorEl(e.currentTarget)}
-              size="small"
-            >
-              {user.avatar === "" ? (
-                <Avatar
-                  sx={{ width: 35, height: 35, bgcolor: deepPurple[500] }}
-                >
-                  {user.name.charAt(0).toUpperCase()}
-                </Avatar>
-              ) : (
-                <Avatar
-                  src={`${user.avatar}?cb=${Date.now()}`}
-                  sx={{ width: 35, height: 35 }}
-                  style={{ border: "1px solid black" }}
-                />
-              )}
-            </IconButton>
-          </Tooltip>
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={() => setAnchorEl(null)}
-            onClick={() => setAnchorEl(null)}
-            PaperProps={{
-              elevation: 0,
-              sx: {
-                overflow: "visible",
-                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.1))",
-                mt: 1.5,
-                "&:before": {
-                  content: '""',
-                  display: "block",
-                  position: "absolute",
-                  top: 0,
-                  right: 14,
-                  width: 10,
-                  height: 10,
-                  bgcolor: "background.paper",
-                  transform: "translateY(-50%) rotate(45deg)",
-                  zIndex: 0,
+          <Nav className="flex-row">
+            <Nav.Link className="font-weight-bolder text-white me-1" disabled>
+              Welcome, {user.name}
+            </Nav.Link>
+            <Tooltip title="Account settings">
+              <IconButton
+                onClick={(e) => setAnchorEl(e.currentTarget)}
+                size="small"
+              >
+                {user.avatar === "" ? (
+                  <Avatar
+                    sx={{ width: 35, height: 35, bgcolor: deepPurple[500] }}
+                  >
+                    {user.name.charAt(0).toUpperCase()}
+                  </Avatar>
+                ) : (
+                  <Avatar
+                    src={`${user.avatar}?cb=${Date.now()}`}
+                    sx={{ width: 35, height: 35 }}
+                    style={{ border: "1px solid black" }}
+                  />
+                )}
+              </IconButton>
+            </Tooltip>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={() => setAnchorEl(null)}
+              onClick={() => setAnchorEl(null)}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  overflow: "visible",
+                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.1))",
+                  mt: 1.5,
+                  "&:before": {
+                    content: '""',
+                    display: "block",
+                    position: "absolute",
+                    top: 0,
+                    right: 14,
+                    width: 10,
+                    height: 10,
+                    bgcolor: "background.paper",
+                    transform: "translateY(-50%) rotate(45deg)",
+                    zIndex: 0,
+                  },
                 },
-              },
-            }}
-            transformOrigin={{ horizontal: "right", vertical: "top" }}
-            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-          >
-            <Nav.Link to="/profile" as={Link}>
-              <MenuItem style={{ paddingLeft: "25px", paddingRight: "60px" }}>
-                <ListItemIcon>
-                  <AccountCircleIcon fontSize="small" />
+              }}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+            >
+              <Nav.Link to="/profile" as={Link}>
+                <MenuItem style={{ paddingLeft: "25px", paddingRight: "60px" }}>
+                  <ListItemIcon>
+                    <AccountCircleIcon fontSize="small" />
+                  </ListItemIcon>
+                  <span style={{ fontSize: "15px", marginLeft: "-5px" }}>
+                    Profile
+                  </span>
+                </MenuItem>
+              </Nav.Link>
+              <Divider sx={{ mt: 1, mb: 1 }} />
+              <MenuItem
+                style={{ paddingLeft: "25px", paddingRight: "60px" }}
+                onClick={() => logoutUser()}
+              >
+                <ListItemIcon sx={{ minWidth: 1 }}>
+                  <LogoutIcon fontSize="small" sx={{ color: red[500] }} />
                 </ListItemIcon>
-                <span style={{ fontSize: "15px", marginLeft: "-5px" }}>
-                  Profile
+                <span
+                  style={{
+                    color: red[500],
+                    fontSize: "15px",
+                    marginLeft: "-5px",
+                  }}
+                >
+                  Logout
                 </span>
               </MenuItem>
-            </Nav.Link>
-            <Divider sx={{ mt: 1, mb: 1 }} />
-            <MenuItem
-              style={{ paddingLeft: "25px", paddingRight: "60px" }}
-              onClick={() => logoutUser()}
-            >
-              <ListItemIcon sx={{ minWidth: 1 }}>
-                <LogoutIcon fontSize="small" sx={{ color: red[500] }} />
-              </ListItemIcon>
-              <span
-                style={{
-                  color: red[500],
-                  fontSize: "15px",
-                  marginLeft: "-5px",
-                }}
-              >
-                Logout
-              </span>
-            </MenuItem>
-          </Menu>
-        </Nav>
+            </Menu>
+          </Nav>
+        </Navbar.Collapse>
       </Container>
     </Navbar>
   );

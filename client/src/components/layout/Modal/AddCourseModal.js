@@ -45,7 +45,7 @@ function AddCourseModal({ data }) {
       year,
     });
     setIsAdding(false);
-    console.log(res);
+    // console.log(res);
     if (res.success) {
       setAlert({
         ...alert,

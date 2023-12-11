@@ -98,7 +98,7 @@ function AttendanceCheck() {
         console.log("Attendance not found!");
       }
       setIsLoading(false);
-      console.log(res);
+      // console.log(res);
     };
     getData();
   }, [attendanceId]); // eslint-disable-line react-hooks/exhaustive-deps

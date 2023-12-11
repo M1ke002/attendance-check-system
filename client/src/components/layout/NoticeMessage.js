@@ -40,7 +40,7 @@ function NoticeMessage() {
       const res = await deleteAttendance(attendance._id);
       await getAllCourses();
       setIsLoading(false);
-      console.log(res);
+      // console.log(res);
       message = res.message;
       if (!res.success) {
         toast.error(res.message, {
@@ -97,7 +97,7 @@ function NoticeMessage() {
           style={{ textDecoration: "none", color: "rgb(204 87 98)" }}
           onClick={() => setShowConfirmDeleteModal(true)}
         >
-          <span className="me-1">Cancel this class</span>
+          <span className="me-1">Delete session</span>
           <ClearIcon fontSize="small" />
         </Button>
       </Alert>

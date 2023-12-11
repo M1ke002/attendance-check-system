@@ -78,7 +78,7 @@ function EnrolledStudentsTable({ course }) {
         courseId: _id,
       });
     }
-    console.log(res);
+    // console.log(res);
     if (res.success) {
       await getAllCourses();
       if (selectedCourse && attendance && selectedCourse._id === _id) {

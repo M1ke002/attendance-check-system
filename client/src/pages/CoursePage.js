@@ -43,11 +43,7 @@ function CoursePage() {
           </Link>
           {<ChevronRightIcon fontSize="small" />} {name}
         </div>
-        <Card
-          border="0"
-          className="d-flex justify-content-center shadow-sm"
-          style={{ height: "70px" }}
-        >
+        <Card border="0" className="d-flex justify-content-center shadow-sm">
           <Card.Body>
             <Tabs variant="pills" activeKey={key} onSelect={(k) => setKey(k)}>
               <Tab eventKey="details" title="Details" />

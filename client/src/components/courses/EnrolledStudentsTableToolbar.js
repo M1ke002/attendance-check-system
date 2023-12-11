@@ -21,8 +21,8 @@ function EnrolledStudentsTableToolbar(props) {
 
   return (
     <>
-      <GridToolbarContainer style={{ justifyContent: "flex-end" }}>
-        <div>
+      <GridToolbarContainer>
+        <div className="ms-auto">
           <Button
             variant="success"
             className="me-2 d-inline-flex justify-content-center w-2"

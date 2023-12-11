@@ -9,8 +9,8 @@ function CoursesTableToolbar() {
   const [showAddCourseModal, setShowAddCourseModal] = useState(false);
   return (
     <>
-      <GridToolbarContainer style={{ justifyContent: "flex-end" }}>
-        <div>
+      <GridToolbarContainer>
+        <div className="ms-auto">
           <Button
             variant="success"
             className="me-4 d-inline-flex justify-content-center w-2"

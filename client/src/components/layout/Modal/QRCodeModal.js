@@ -10,8 +10,6 @@ function QRCodeModal({ data }) {
     setShowQRCodeModal(false);
   };
 
-  console.log("process.env.DEPLOYED_URL: " + process.env.DEPLOYED_URL);
-
   return (
     <Modal show={showQRCodeModal} centered size="lg" onHide={onCloseModal}>
       <Modal.Header closeButton>

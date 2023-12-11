@@ -68,7 +68,7 @@ function CourseTable() {
   const handleDeleteCourse = async () => {
     setIsDeleting(true);
     const res = await deleteCourse(selectedCourse._id);
-    console.log("ok", res);
+    // console.log("ok", res);
     if (res.success) {
       //if attendance is available and that attendance is included in the deleted course -> remove attendance
       if (

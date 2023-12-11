@@ -45,7 +45,7 @@ function EditCourseModal({ data }) {
       _id,
     });
     setIsSaving(false);
-    console.log(res);
+    // console.log(res);
     if (res.success) {
       setAlert({
         ...alert,

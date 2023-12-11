@@ -125,7 +125,7 @@ function CourseStats({ course }) {
                 }}
               />
               <Tooltip />
-              <Legend align="right" wrapperStyle={{ top: -40, left: 0 }} />
+              <Legend align="right" wrapperStyle={{ top: 0, left: 0 }} />
               <Bar
                 dataKey="students"
                 fill="#8884d8"

@@ -131,7 +131,7 @@ function EnrollStudentModal({ data }) {
     }
     setIsAdding(true);
     const res = await enrollStudentForCourse(enrollInfo);
-    console.log(res);
+    // console.log(res);
     if (res.success) {
       await getAllCourses();
       //if there is a course selected at attendance page and it is same as the course in course details

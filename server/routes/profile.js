@@ -4,6 +4,13 @@ const multer = require("multer");
 const fs = require("fs");
 const verifyToken = require("../middleware/auth");
 const User = require("../models/User");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET,
+});
 
 const router = express.Router();
 
@@ -12,11 +19,12 @@ const storage = multer.diskStorage({
     cb(null, "./uploads/");
   },
   filename: function (req, file, cb) {
-    cb(null, `${req.userId}.jpg`);
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 
 const upload = multer({ storage: storage });
+// const upload = multer();
 
 //@route PUT /api/profile
 //@desc edit profile
@@ -74,10 +82,27 @@ router.post(
   async (req, res) => {
     try {
       const file = req.file;
-      const imageUrl = `http://localhost:${
-        process.env.PORT
-      }/${file.path.replace("\\", "/")}`;
+      // const imageUrl = `http://localhost:${
+      //   process.env.PORT
+      // }/${file.path.replace("\\", "/")}`;
       console.log(file);
+      const response = await cloudinary.uploader.upload(file.path, {
+        public_id: req.userId,
+        folder: "avatars",
+        overwrite: true,
+        use_filename: true,
+      });
+
+      if (!response)
+        return res
+          .status(400)
+          .json({ success: false, message: "Can't upload avatar image" });
+
+      //remove temporary file
+      fs.unlinkSync(file.path);
+
+      const imageUrl = response.secure_url;
+      // console.log(response);
       const user = await User.findOneAndUpdate(
         { _id: req.userId },
         { avatar: imageUrl },
@@ -107,12 +132,12 @@ router.post(
 router.delete("/delete-avatar", verifyToken, async (req, res) => {
   try {
     const userId = req.userId;
-    const filePath = `./uploads/${userId}.jpg`;
-    console.log(filePath);
-    fs.unlink(filePath, (err) => {
-      if (err) console.log(err);
-      console.log("Image removed from server");
-    });
+    const response = await cloudinary.uploader.destroy(`avatars/${userId}`);
+    if (!response.result === "ok") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Can't delete avatar image" });
+    }
     const user = await User.findOneAndUpdate(
       { _id: req.userId },
       { avatar: "" },

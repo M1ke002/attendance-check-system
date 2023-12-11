@@ -105,7 +105,7 @@ function UploadFileModal({ data }) {
     const rows = await readXlsxFile(file);
     console.log(rows);
     const extractedData = getDataFromFile(rows);
-    console.log(extractedData, currCoursePage._id);
+    // console.log(extractedData, currCoursePage._id);
     if (!extractedData || extractedData.length === 0) {
       console.log("can't find student information in file");
       toast.error("can't find student information in file", {
