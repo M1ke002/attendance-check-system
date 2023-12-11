@@ -46,6 +46,11 @@ function PersonalInfo() {
         theme: "colored",
         autoClose: 2000,
       });
+    } else {
+      toast.error(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
     }
     // console.log(res);
   };
@@ -62,6 +67,11 @@ function PersonalInfo() {
       });
       //clear file input
       fileInput.current.value = "";
+    } else {
+      toast.error(res.message, {
+        theme: "colored",
+        autoClose: 2000,
+      });
     }
     // console.log(res);
   };
