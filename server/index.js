@@ -20,8 +20,6 @@ const connectDB = async () => {
   }
 };
 
-connectDB();
-
 const app = express();
 
 app.use(express.json());
@@ -35,6 +33,15 @@ app.use("/api/attendance", attendanceRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/students", studentsRouter);
 
-app.listen(process.env.PORT || 5000, () =>
-  console.log(`listening on port ${process.env.PORT}`)
-);
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(process.env.PORT || 5000, () =>
+      console.log(`listening on port ${process.env.PORT}`)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+startServer();

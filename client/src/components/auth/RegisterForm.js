@@ -8,12 +8,14 @@ import { Link } from "react-router-dom";
 import { useState, useContext } from "react";
 import { authContext } from "../../contexts/AuthContext";
 import AlertMessage from "../layout/AlertMessage";
+import { isValidEmail } from "../../utils/utilsFunction";
 
 function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [userForm, setUserForm] = useState({
     username: "",
     name: "",
+    email: "",
     password: "",
     confirmPassword: "",
   });
@@ -24,7 +26,7 @@ function RegisterForm() {
     type: "",
   });
 
-  const { username, name, password, confirmPassword } = userForm;
+  const { username, name, email, password, confirmPassword } = userForm;
 
   const changeFormValue = (e) => {
     setUserForm({
@@ -40,6 +42,17 @@ function RegisterForm() {
       setAlert({
         ...alert,
         message: "Passwords do not match",
+        show: true,
+        type: "light-danger",
+      });
+      setIsLoading(false);
+      return;
+    }
+    //check if email is valid
+    if (!isValidEmail(email)) {
+      setAlert({
+        ...alert,
+        message: "Invalid email",
         show: true,
         type: "light-danger",
       });
@@ -79,7 +92,7 @@ function RegisterForm() {
         <div className="p-4">
           <Form onSubmit={handleRegister}>
             {alert.show && <AlertMessage data={{ alert, setAlert }} />}
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-2">
               <Form.Label>Username</Form.Label>
               <Form.Control
                 type="text"
@@ -90,7 +103,7 @@ function RegisterForm() {
                 onChange={changeFormValue}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-2">
               <Form.Label>Name</Form.Label>
               <Form.Control
                 type="text"
@@ -101,7 +114,18 @@ function RegisterForm() {
                 onChange={changeFormValue}
               />
             </Form.Group>
-            <Form.Group className="mt-3 mb-1">
+            <Form.Group className="mb-2">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Email"
+                name="email"
+                required
+                value={email}
+                onChange={changeFormValue}
+              />
+            </Form.Group>
+            <Form.Group className="mt-2">
               <Form.Label>Password</Form.Label>
               <Form.Control
                 type="password"
@@ -112,7 +136,7 @@ function RegisterForm() {
                 onChange={changeFormValue}
               />
             </Form.Group>
-            <Form.Group className="mt-3 mb-1">
+            <Form.Group className="mt-2 mb-1">
               <Form.Label>Confirm password</Form.Label>
               <Form.Control
                 type="password"

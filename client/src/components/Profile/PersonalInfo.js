@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { useState, useContext, useRef } from "react";
 import { authContext } from "../../contexts/AuthContext";
+import { isValidEmail } from "../../utils/utilsFunction";
 
 function PersonalInfo() {
   const {
@@ -27,7 +28,7 @@ function PersonalInfo() {
   const [infoInputField, setInfoInputField] = useState({
     username: user.username,
     name: user.name,
-    email: "",
+    email: user.email,
   });
   const { username, name, email } = infoInputField;
 
@@ -88,7 +89,7 @@ function PersonalInfo() {
       ...infoInputField,
       username: user.username,
       name: user.name,
-      email: "",
+      email: user.email,
     });
     setIsEditable(false);
     setEditBtnText("Edit");
@@ -104,12 +105,21 @@ function PersonalInfo() {
     }
     //validation
     setValidated(true);
-    if (username.trim() === "" || name.trim() === "") {
+    if (username.trim() === "" || name.trim() === "" || email.trim() === "") {
       console.log("Can't leave empty field!");
       return;
     }
+    //check if email is valid
+    if (!isValidEmail(email)) {
+      console.log("Invalid email");
+      toast.error("Invalid email", {
+        theme: "colored",
+        autoClose: 2000,
+      });
+      return;
+    }
     setIsSaving(true);
-    const res = await updateUserInfo({ username, name });
+    const res = await updateUserInfo({ username, name, email });
     setIsSaving(false);
     if (res.success) {
       console.log("updated user info");
