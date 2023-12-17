@@ -91,7 +91,7 @@ function LoginForm() {
                 />
               </Form.Group>
               <Link
-                to="/login"
+                to="/forgot-password"
                 style={{ textDecoration: "none", color: "#3498db" }}
               >
                 Forgot password?

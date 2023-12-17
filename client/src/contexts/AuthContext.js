@@ -134,6 +134,43 @@ function AuthContext({ children }) {
     }
   };
 
+  const forgotPassword = async (email) => {
+    try {
+      const res = await axios.post(`${apiUrl}/auth/forgot-password`, { email });
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const resetPassword = async (newPassword, token) => {
+    try {
+      const res = await axios.post(`${apiUrl}/auth/reset-password`, {
+        newPassword,
+        token,
+      });
+      return res.data;
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
+  const deleteAccount = async () => {
+    try {
+      const res = await axios.delete(`${apiUrl}/profile`);
+      if (res.data.success) {
+        logoutUser();
+      } else {
+        return res.data;
+      }
+    } catch (error) {
+      if (error.response) return error.response.data;
+      else return { success: false, message: error.message };
+    }
+  };
+
   const updateUserInfo = async (userInfo) => {
     try {
       const res = await axios.put(`${apiUrl}/profile`, userInfo);
@@ -205,8 +242,11 @@ function AuthContext({ children }) {
     loginUser,
     registerUser,
     logoutUser,
+    deleteAccount,
     updateUserInfo,
     changePassword,
+    forgotPassword,
+    resetPassword,
     uploadAvatar,
     deleteAvatar,
   };

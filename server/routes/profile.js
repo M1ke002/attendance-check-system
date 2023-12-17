@@ -5,6 +5,7 @@ const {
   editProfile,
   uploadAvatarImage,
   deleteAvatarImage,
+  deleteAccount,
 } = require("../controllers/User");
 
 const router = express.Router();
@@ -30,6 +31,11 @@ const upload = multer({ storage: storage });
 //@desc edit profile
 //@accessability private
 router.put("/", verifyToken, editProfile);
+
+//@route DELETE /api/profile
+//@desc delete account
+//@accessability private
+router.delete("/", verifyToken, deleteAccount);
 
 //@route POST /api/profile/upload-avatar
 //@desc upload avatar image

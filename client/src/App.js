@@ -42,6 +42,16 @@ function App() {
                   />
                   <Route
                     exact
+                    path="/forgot-password"
+                    element={<Auth routeType="forgotPassword" />}
+                  />
+                  <Route
+                    exact
+                    path="/reset-password/:resetToken"
+                    element={<Auth routeType="resetPassword" />}
+                  />
+                  <Route
+                    exact
                     path="/attendance/check/:attendanceId"
                     element={<AttendanceCheck />}
                   />

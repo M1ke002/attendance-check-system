@@ -1,5 +1,7 @@
 import LoginForm from "../components/auth/LoginForm";
 import RegisterForm from "../components/auth/RegisterForm";
+import ForgotPasswordForm from "../components/auth/ForgotPasswordForm";
+import ResetPasswordForm from "../components/auth/ResetPasswordForm";
 import { useEffect, useContext } from "react";
 import { authContext } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -37,7 +39,10 @@ function Auth({ routeType }) {
     return (
       <>
         <div className="auth-body">
-          {routeType === "login" ? <LoginForm /> : <RegisterForm />}
+          {routeType === "login" && <LoginForm />}
+          {routeType === "register" && <RegisterForm />}
+          {routeType === "forgotPassword" && <ForgotPasswordForm />}
+          {routeType === "resetPassword" && <ResetPasswordForm />}
           <p className="text-center text-muted mt-2">
             Copyright &copy; 2022 by Mitty
           </p>

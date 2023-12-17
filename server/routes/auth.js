@@ -5,6 +5,8 @@ const {
   register,
   login,
   changePassword,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/User");
 
 const router = express.Router();
@@ -23,6 +25,16 @@ router.post("/register", register);
 //@desc login user
 //@accessability public
 router.post("/login", login);
+
+//@route POST /api/auth/forgot-password
+//@desc send reset password to email
+//@accessability public
+router.post("/forgot-password", forgotPassword);
+
+//@route POST /api/auth/reset-password
+//@desc reset password
+//@accessability public
+router.post("/reset-password", resetPassword);
 
 //@route PUT /api/auth/change-password
 //@desc change user password

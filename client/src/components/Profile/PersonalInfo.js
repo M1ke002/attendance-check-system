@@ -5,7 +5,6 @@ import Avatar from "@mui/material/Avatar";
 import ConfirmDeleteModal from "../layout/Modal/ConfirmDeleteModal";
 
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
 import { useState, useContext, useRef } from "react";
 import { authContext } from "../../contexts/AuthContext";
 import { isValidEmail } from "../../utils/utilsFunction";
@@ -262,16 +261,9 @@ function PersonalInfo() {
                 disabled={!isEditable}
               />
             </Form.Group>
-            <Link
-              to="#"
-              className="link mt-2"
-              style={{ display: "inline-block" }}
-            >
-              Change email
-            </Link>
 
             <hr
-              style={{ opacity: 0.15, marginTop: "20px", marginBottom: "15px" }}
+              style={{ opacity: 0.15, marginTop: "25px", marginBottom: "15px" }}
             />
 
             <div className="d-flex justify-content-end">

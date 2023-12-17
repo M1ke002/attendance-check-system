@@ -2,16 +2,16 @@ require("dotenv").config();
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
+const crypto = require("crypto");
 
 const User = require("../models/User");
+const Token = require("../models/Token");
+const Course = require("../models/Course");
+const Attendance = require("../models/Attendance");
+const Student = require("../models/Student");
 
-const cloudinary = require("cloudinary").v2;
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET,
-});
+const sendEmail = require("../utils/sendEmail");
+const cloudinary = require("../utils/cloudinaryConfig");
 
 const checkAuthentication = async (req, res) => {
   const userId = req.userId;
@@ -104,8 +104,10 @@ const login = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid password" });
 
-    //create access token for user
-    const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_KEY);
+    //create access token for user, valid for 14 days
+    const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_KEY, {
+      expiresIn: "14d",
+    });
     res.json({
       success: true,
       message: "Login successfully",
@@ -152,6 +154,85 @@ const changePassword = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const user = await User.findOne({ email: email });
+    if (!user)
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+
+    //check if there is already a valid token
+    let token = await Token.findOne({ user: user._id });
+    if (!token || token.tokenExpiresAt < Date.now()) {
+      if (token) {
+        //delete expired token
+        await token.deleteOne();
+      }
+
+      //generate password reset token
+      const passwordResetToken = crypto.randomBytes(32).toString("hex");
+      const passwordResetTokenExpiresAt = Date.now() + 3600000; //1 hour
+      token = new Token({
+        token: passwordResetToken,
+        tokenExpiresAt: passwordResetTokenExpiresAt,
+        user: user._id,
+      });
+      await token.save();
+    }
+
+    //send email to user
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${token.token}`;
+    const message = `Hi ${user.name}, \n\n Click this link to reset your account password on Attendance System website: ${resetUrl} \n\nNote that this link will expire in 1 hour.`;
+    await sendEmail(email, "Password Reset", message);
+    res.json({
+      success: true,
+      message: "Password reset link sent to your email",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword)
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing token or password" });
+
+    //check if token is valid
+    const foundToken = await Token.findOne({ token: token });
+    if (!foundToken || foundToken.tokenExpiresAt < Date.now())
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired token" });
+
+    //check if user exists
+    const user = await User.findById(foundToken.user);
+    if (!user)
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+
+    //hash and update new password
+    const hashedPassword = await argon2.hash(newPassword);
+    user.password = hashedPassword;
+    await user.save();
+
+    //delete token
+    await foundToken.deleteOne();
+
+    res.json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -204,6 +285,32 @@ const editProfile = async (req, res) => {
         avatar: updatedUser.avatar,
       },
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const deletedUser = await User.findOneAndDelete({ _id: userId });
+    if (!deletedUser)
+      return res
+        .status(400)
+        .json({ success: false, message: "Can't delete account" });
+    if (deletedUser.avatar !== "") {
+      //delete avatar image from cloudinary
+      await cloudinary.uploader.destroy(`avatars/${userId}`);
+    }
+    //delete all courses created by user
+    await Course.deleteMany({ user: userId });
+    //delete all attendances of user
+    await Attendance.deleteMany({ user: userId });
+    //delete all students of user
+    await Student.deleteMany({ user: userId });
+
+    res.json({ success: true, message: "Account deleted" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -287,7 +394,10 @@ module.exports = {
   checkAuthentication,
   register,
   login,
+  deleteAccount,
   changePassword,
+  forgotPassword,
+  resetPassword,
   editProfile,
   uploadAvatarImage,
   deleteAvatarImage,
