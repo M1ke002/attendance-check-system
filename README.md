@@ -59,7 +59,7 @@ CLOUDINARY_CLOUD_NAME=your_cloudinary_name
 ```
 Start the server
 ```
-npm run dev
+npm run server
 ```
 ## Todos
 - [ ] Implement geolocation tracking to verify the physical presence of students during attendance check-ins
