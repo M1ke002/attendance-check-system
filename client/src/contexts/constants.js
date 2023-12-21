@@ -2,7 +2,7 @@ export const apiUrl =
   process.env.NODE_ENV === "production"
     ? "https://attendance-check-system-server.vercel.app/api"
     : "http://localhost:5000/api";
-const IP_NUMBER = "192.168.1.11"; //change this constant if IP changes
+const IP_NUMBER = "192.168.1.13"; //change this constant if IP changes (IPv4 Address)
 export const IP = IP_NUMBER + ":3000"; //mobileApiUrl and IP can change after some time?
 export const mobileApiUrl =
   process.env.NODE_ENV === "production"

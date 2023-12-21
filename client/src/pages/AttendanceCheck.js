@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { attendanceContext } from "../contexts/AttendanceContext";
 import { STUDENT_TOKEN_NAME } from "../contexts/constants";
+import { getCurrentPosition } from "../utils/utilsFunction";
 
 const getDisplayedStudents = (students) => {
   return students.map((student) => {
@@ -58,7 +59,29 @@ function AttendanceCheck() {
     return async () => {
       if (attendanceId && studentId) {
         setIsChecking(true);
-        const res = await checkAttendance(studentId, attendanceId);
+
+        //get the geolocation of the student
+        const position = await getCurrentPosition();
+        if (!position) {
+          setAlert((alert) => {
+            return {
+              ...alert,
+              message: "Please enable your location",
+              show: true,
+              type: "light-danger",
+            };
+          });
+          setIsChecking(false);
+          return;
+        }
+        const { latitude, longitude } = position.coords;
+        console.log(latitude, longitude);
+        const res = await checkAttendance(
+          studentId,
+          attendanceId,
+          latitude,
+          longitude
+        );
         if (res.success) {
           setAlert((alert) => {
             return {

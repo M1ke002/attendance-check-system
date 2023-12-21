@@ -131,11 +131,18 @@ function AttendanceContext({ children }) {
     });
   };
 
-  const checkAttendance = async (studentId, attendanceId) => {
+  const checkAttendance = async (
+    studentId,
+    attendanceId,
+    studentLatitude,
+    studentLongitude
+  ) => {
     try {
       const res = await axios.post(`${mobileApiUrl}/attendance/check-student`, {
         studentId,
         attendanceId,
+        studentLatitude,
+        studentLongitude,
       });
       return res.data;
     } catch (error) {

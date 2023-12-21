@@ -44,6 +44,15 @@ const attendanceSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  //properties for geolocation
+  latitude: {
+    type: Number,
+    default: null,
+  },
+  longitude: {
+    type: Number,
+    default: null,
+  },
   user: {
     type: Schema.Types.ObjectId,
     ref: "users",

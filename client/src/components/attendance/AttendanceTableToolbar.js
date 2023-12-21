@@ -11,6 +11,7 @@ import MenuItem from "@mui/material/MenuItem";
 import QRCodeModal from "../../components/layout/Modal/QRCodeModal";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { getCurrentPosition } from "../../utils/utilsFunction";
 
 const VALID = "Open";
 const INVALID = "Closed";
@@ -87,8 +88,19 @@ function AttendanceTableToolbar(props) {
         startTime: timeRange[0],
         endTime: timeRange[1],
         courseId: course._id,
+        latitude: null,
+        longitude: null,
       };
       setIsLoadingQR(true);
+
+      //get the geolocation of the session -> need to add the lat and lon to attendanceData before creating attendance
+      const position = await getCurrentPosition();
+      if (position) {
+        const { latitude, longitude } = position.coords;
+        console.log(latitude, longitude);
+        attendanceData.latitude = latitude;
+        attendanceData.longitude = longitude;
+      }
       const res = await createAttendance(attendanceData);
       await getAllCourses();
       setIsLoadingQR(false);
@@ -144,7 +156,18 @@ function AttendanceTableToolbar(props) {
         startTime: timeRange[0],
         endTime: timeRange[1],
         courseId: course._id,
+        latitude: null,
+        longitude: null,
       };
+
+      //get the geolocation of the session -> need to add the lat and lon to attendanceData before creating attendance
+      const position = await getCurrentPosition();
+      if (position) {
+        const { latitude, longitude } = position.coords;
+        console.log(latitude, longitude);
+        attendanceData.latitude = latitude;
+        attendanceData.longitude = longitude;
+      }
       const res = await createAttendance(attendanceData);
       console.log(res);
       result = res;

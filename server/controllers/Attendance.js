@@ -2,6 +2,10 @@
 
 const Course = require("../models/Course");
 const Attendance = require("../models/Attendance");
+const {
+  getDistanceFromLatLonInKm,
+  THRESHOLD_DISTANCE,
+} = require("../utils/utilFunctions");
 
 const getAttendanceList = async (req, res) => {
   const { attendanceId } = req.query;
@@ -74,7 +78,16 @@ const getAttendanceDetails = async (req, res) => {
 };
 
 const createAttendanceList = async (req, res) => {
-  const { date, courseId, records, sessionName, startTime, endTime } = req.body;
+  const {
+    date,
+    courseId,
+    records,
+    sessionName,
+    startTime,
+    endTime,
+    latitude,
+    longitude,
+  } = req.body;
   if (!courseId || !date || !records || !sessionName || !startTime || !endTime)
     return res.status(400).json({ success: false, message: "Missing data" });
   try {
@@ -92,6 +105,8 @@ const createAttendanceList = async (req, res) => {
       sessionName,
       startTime,
       endTime,
+      latitude,
+      longitude,
       user: req.userId,
     });
 
@@ -205,11 +220,16 @@ const deleteAttendanceList = async (req, res) => {
 };
 
 const checkAttendance = async (req, res) => {
-  const { studentId, attendanceId } = req.body;
+  const { studentId, attendanceId, studentLatitude, studentLongitude } =
+    req.body;
   if (!studentId || !attendanceId)
     return res
       .status(400)
       .json({ success: false, message: "Missing student id/attendance id" });
+  if (!studentLatitude || !studentLongitude)
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing student location" });
   try {
     const attendance = await Attendance.findOne({ _id: attendanceId });
     if (!attendance)
@@ -222,6 +242,24 @@ const checkAttendance = async (req, res) => {
         success: false,
         message: "You can't check attendance on this date",
       });
+
+    //check the distance between student and teacher to verify that student is in class
+    //if latitude and longitude of attendance is null -> skip
+    if (attendance.latitude && attendance.longitude) {
+      const distance = getDistanceFromLatLonInKm(
+        attendance.latitude,
+        attendance.longitude,
+        studentLatitude,
+        studentLongitude
+      );
+      console.log("distance: ", distance);
+
+      if (distance > THRESHOLD_DISTANCE)
+        return res.status(400).json({
+          success: false,
+          message: "You are too far from the class",
+        });
+    }
 
     const updatedAttendance = await Attendance.findOneAndUpdate(
       { _id: attendanceId },
