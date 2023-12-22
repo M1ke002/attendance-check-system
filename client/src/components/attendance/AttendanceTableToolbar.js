@@ -1,6 +1,8 @@
 import { GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
+import { CSVLink } from "react-csv";
 import SaveIcon from "@mui/icons-material/Save";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
 import Backdrop from "@mui/material/Backdrop";
@@ -10,7 +12,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import QRCodeModal from "../../components/layout/Modal/QRCodeModal";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { getCurrentPosition } from "../../utils/utilsFunction";
 
 const VALID = "Open";
@@ -38,6 +40,20 @@ function AttendanceTableToolbar(props) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isChanging, setIsChanging] = useState(false);
   const [isLoadingQR, setIsLoadingQR] = useState(false);
+  const [csvData, setCsvData] = useState({
+    data: [],
+    filename: "",
+  });
+
+  const csvLinkRef = useRef();
+
+  useEffect(() => {
+    if (csvData.data.length === 0 || !csvData.filename || !csvLinkRef.current)
+      return;
+
+    //trigger the download
+    csvLinkRef.current.link.click();
+  }, [csvData]);
 
   const checkCourseSelected = () => {
     if (!course || !session) {
@@ -107,6 +123,23 @@ function AttendanceTableToolbar(props) {
       console.log(res);
     }
     setShowQRCodeModal(true);
+  };
+
+  const handleExportCSV = () => {
+    console.log(attendance);
+    const attendanceData = [["Student ID", "Student Name", "Present"]];
+    attendance.records.forEach((record) => {
+      const { student, present } = record;
+      const { studentId, name } = student;
+      attendanceData.push([studentId, name, present ? "Yes" : "No"]);
+    });
+
+    const csvData = {
+      data: attendanceData,
+      filename: `attendance_${attendance.sessionName}.csv`,
+    };
+
+    setCsvData(csvData);
   };
 
   const refreshAttendance = async () => {
@@ -219,6 +252,26 @@ function AttendanceTableToolbar(props) {
           >
             {isLoadingQR ? "Generating" : "Generate QR"}
           </Button>
+          <Tooltip title="Export CSV" placement="top">
+            <span>
+              <Button
+                variant="info"
+                style={{ height: "38px" }}
+                className="d-inline-flex align-items-center justify-content-center me-2"
+                disabled={isRefreshing || !attendance}
+                onClick={handleExportCSV}
+              >
+                <FileDownloadIcon />
+              </Button>
+            </span>
+          </Tooltip>
+          <CSVLink
+            data={csvData.data}
+            filename={csvData.filename}
+            className="hidden"
+            target="_blank"
+            ref={csvLinkRef}
+          />
           <Tooltip title="Refresh" placement="top">
             <span>
               <Button
