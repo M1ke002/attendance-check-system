@@ -18,7 +18,7 @@ A full-stack web application for managing student attendance built with MERN sta
 - Provide a detailed history of past attendance records
 - Display a summary of overall attendance statistics for a course in form of a bar chart
 
-## Technologies Used
+## Tech stack
 
 - Frontend: ReactJS
 - Backend: NodeJS (ExpressJS)
